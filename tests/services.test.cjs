@@ -290,3 +290,40 @@ test("sign-in age comes from the session's shell start time", async () => {
   assert.equal(await empty.sessionAge(), null);
   assert.equal(await createServices({ platform: "linux", env: {} }).sessionAge(), null);
 });
+
+test("sign-in settings: auto-logon is read, the startup delay is switched off and back", async () => {
+  const reg = new Map([["HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon|AutoAdminLogon", "1"]]);
+  const runner = fakeRun({
+    "reg.exe": (args) => {
+      const [verb, key, , name] = args;
+      const id = key + "|" + name;
+      if (verb === "query") {
+        if (!reg.has(id)) throw Error("not found");
+        return { stdout: `\r\n${key}\r\n    ${name}    REG_${name === "AutoAdminLogon" ? "SZ" : "DWORD"}    ${reg.get(id)}\r\n` };
+      }
+      if (verb === "add") reg.set(id, "0x" + args[7]);
+      if (verb === "delete") reg.delete(id);
+      return { stdout: "" };
+    },
+  });
+  const s = services({ fs: fakeFs(), run: runner.run });
+  assert.deepEqual(await s.signInSnapshot(), { autoLogon: true, fastStartup: false });
+  assert.equal(await s.setFastStartup(true), true);
+  const adds = runner.calls.filter((c) => c.args[0] === "add").map((c) => c.args);
+  assert.deepEqual(adds.map((a) => a[1]), Array(2).fill("HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Serialize"));
+  assert.deepEqual(adds.map((a) => a[3]), ["StartupDelayInMSec", "WaitForIdleState"]);
+  assert.deepEqual(adds[0].slice(4), ["/t", "REG_DWORD", "/d", "0", "/f"]);
+  assert.equal(await s.setFastStartup(false), false);
+  reg.delete("HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon|AutoAdminLogon");
+  assert.deepEqual(await s.signInSnapshot(), { autoLogon: false, fastStartup: false });
+});
+
+test("the Windows account dialog opens through the shell (it asks for elevation)", async () => {
+  const opened = [];
+  const s = services({ fs: fakeFs(), run: fakeRun().run, env: { SystemRoot: "C:\\Windows", LOCALAPPDATA: LOCAL, APPDATA: ROAMING },
+    openPath: async (file) => { opened.push(file); return ""; } });
+  assert.equal(await s.openAutoLogon(), true);
+  assert.deepEqual(opened, ["C:\\Windows\\System32\\netplwiz.exe"]);
+  const failing = services({ fs: fakeFs(), run: fakeRun().run, openPath: async () => "Access denied" });
+  await assert.rejects(failing.openAutoLogon(), /nem nyílt meg/);
+});

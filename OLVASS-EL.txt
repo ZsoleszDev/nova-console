@@ -1,4 +1,25 @@
-﻿NOVA 1.11.1 – A MÓDVÁLASZTÓ MINDEN BEJELENTKEZÉSKOR MEGJELENIK
+﻿NOVA 1.11.2 – BEKAPCSOLÁS UTÁN RÖGTÖN A MÓDVÁLASZTÓ
+
+Cél: bekapcsolod a gépet, és egyből a teljes képernyős módválasztó jön.
+Ehhez két Windows-beállítás kell, mindkettő a módválasztó Beállításaiban (Y):
+– Automatikus bejelentkezés: e nélkül a Windows előbb jelszót kér, és a NOVA
+  csak utána indul. A Beállítás… gomb megnyitja a Windows fiókablakát
+  (netplwiz, rendszergazdai jóváhagyással). Ott vedd ki a pipát „A
+  felhasználóknak meg kell adniuk a felhasználónevüket és jelszavukat” elől, és
+  add meg a jelszavad (nem a PIN-kódot). Ha nincs ilyen pipa: Gépház > Fiókok >
+  Bejelentkezési lehetőségek, és kapcsold ki a csak Windows Hello-bejelentkezést.
+  A jelszót a Windows tárolja, a NOVA nem látja.
+– Gyors indulás bejelentkezéskor: alapból bekapcsolt. A Windows a bejelentkezéskor
+  induló programokat különben pár másodpercig várakoztatja. A NOVA a saját
+  felhasználódnál kikapcsolja ezt a várakozást (Explorer\Serialize:
+  StartupDelayInMSec és WaitForIdleState = 0); a kapcsolóval visszaállítható.
+Indításkor a módválasztó kap elsőbbséget, a NOVA főmenüje mögötte töltődik be.
+Ha a NOVA egyszerre kétféleképpen is elindul bejelentkezéskor, a konzol már nem
+villan fel a módválasztó előtt. A Windows asztala a bejelentkezés után még egy-két
+másodpercre látszhat, amíg a NOVA elindul.
+
+
+NOVA 1.11.1 – A MÓDVÁLASZTÓ MINDEN BEJELENTKEZÉSKOR MEGJELENIK
 
 Javítva: a módválasztó csak akkor jelent meg, ha a NOVA a saját automatikus
 indításával (--startup kapcsolóval) indult, különben a konzol fogadott. Most

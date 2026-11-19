@@ -29,6 +29,12 @@ const SESSION_SCRIPT =
   "$p=@(Get-Process -Name sihost,explorer -ErrorAction SilentlyContinue | Where-Object { $_.SessionId -eq $s } | Sort-Object StartTime)[0];" +
   "[Console]::Out.Write([DateTimeOffset]::new($p.StartTime).ToUnixTimeMilliseconds())";
 
+// Windows delays programs started at sign-in; these two values switch that off (per user).
+const SERIALIZE_KEY =
+  "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Serialize";
+const SERIALIZE_VALUES = ["StartupDelayInMSec", "WaitForIdleState"];
+const WINLOGON_KEY = "HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon";
+
 function processAlive(pid) {
   if (!pid) return false;
   try {
@@ -47,6 +53,7 @@ function createServices({
   http = httpDefault,
   run,
   spawn,
+  openPath = async () => "",
   backupDir,
   ollamaUrl = OLLAMA_URL,
   alive = processAlive,
@@ -518,6 +525,59 @@ function createServices({
     }
   }
 
+  async function regValue(key, name) {
+    try {
+      const { stdout } = await run("reg.exe", ["query", key, "/v", name], {
+        windowsHide: true,
+        timeout: 10000,
+      });
+      const match = new RegExp(name + "\\s+REG_\\w+\\s+(\\S*)", "i").exec(String(stdout));
+      return match ? match[1] : null;
+    } catch {
+      return null;
+    }
+  }
+
+  // Whether Windows signs in by itself and starts sign-in programs without delay.
+  async function signInSnapshot() {
+    if (!windows) return { autoLogon: null, fastStartup: null };
+    const [auto, ...delays] = await Promise.all([
+      regValue(WINLOGON_KEY, "AutoAdminLogon"),
+      ...SERIALIZE_VALUES.map((name) => regValue(SERIALIZE_KEY, name)),
+    ]);
+    return {
+      autoLogon: auto === "1",
+      fastStartup: delays.every((value) => value !== null && Number(value) === 0),
+    };
+  }
+
+  async function setFastStartup(on) {
+    requireWindows();
+    for (const name of SERIALIZE_VALUES)
+      if (on)
+        await run(
+          "reg.exe",
+          ["add", SERIALIZE_KEY, "/v", name, "/t", "REG_DWORD", "/d", "0", "/f"],
+          { windowsHide: true, timeout: 10000 },
+        );
+      else
+        await run("reg.exe", ["delete", SERIALIZE_KEY, "/v", name, "/f"], {
+          windowsHide: true,
+          timeout: 10000,
+        }).catch(() => {});
+    return (await signInSnapshot()).fastStartup;
+  }
+
+  // Windows' own account dialog (asks for administrator approval).
+  async function openAutoLogon() {
+    requireWindows();
+    const error = await openPath(
+      path.join(env.SystemRoot || env.windir || "C:\\Windows", "System32", "netplwiz.exe"),
+    );
+    if (error) throw Error("A Windows fiókbeállítása nem nyílt meg: " + error);
+    return true;
+  }
+
   async function status() {
     if (!windows) return { ollama: null, jarvis: null };
     const [ollama, jarvis] = await Promise.all([ollamaRunning(), jarvisStatus()]);
@@ -527,6 +587,9 @@ function createServices({
   return {
     available: windows,
     sessionAge,
+    signInSnapshot,
+    setFastStartup,
+    openAutoLogon,
     status,
     ollamaUp,
     ollamaRunning,

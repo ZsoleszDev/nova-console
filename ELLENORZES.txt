@@ -1,5 +1,13 @@
-﻿NOVA 1.11.1 – ELLENŐRZÉSI JEGYZET
+﻿NOVA 1.11.2 – ELLENŐRZÉSI JEGYZET
 2026. november 19.
+
+– 1.11.2: 20 Node-teszt sikeres: az automatikus bejelentkezés kiolvasása, a
+  bejelentkezési késleltetés kikapcsolása és visszaállítása (helyettesített
+  reg.exe-vel), a Windows fiókablak megnyitása. Electronban: az új beállítási
+  sorok, a fiókablak idejére feloldott legfelül tartás, és a --startup indítás
+  a valódi NOVA főfolyamattal, a főmenü késleltetett betöltésével.
+  A valódi Windows-rendszerleíró adatbázis, a netplwiz és a bejelentkezési
+  sorrend valódi gépen még ellenőrizendő.
 
 – 1.11.1: 18 Node-teszt sikeres, köztük a bejelentkezés óta eltelt idő
   kiolvasása (helyettesített PowerShell-válasszal). Electronban: a főablak

@@ -185,6 +185,7 @@ function setup() {
       "modePickerSetup",
       "jarvisWindow",
       "consoleGuard",
+      "fastSignIn",
     ])
       if (k in patch) {
         if (typeof patch[k] !== "boolean")
@@ -575,11 +576,19 @@ if (!app.requestSingleInstanceLock()) {
   app.quit();
 } else {
   app.on("second-instance", (_event, argv = []) => {
+    if (modes && argv.includes("--mode-picker")) {
+      modes.open();
+      return;
+    }
+    // Two sign-in launches (e.g. Windows reopening NOVA and its autostart):
+    // the --startup one decides at once, NOVA's console must not appear first.
     if (
       modes &&
-      (argv.includes("--mode-picker") ||
-        (argv.includes("--startup") && modes.visible))
+      argv.includes("--startup") &&
+      state.settings.modePicker !== false &&
+      (modes.holdsMain() || modes.visible)
     ) {
+      modes.boot();
       modes.open();
       return;
     }
@@ -767,6 +776,7 @@ if (!app.requestSingleInstanceLock()) {
     const services = createServices({
       run,
       spawn,
+      openPath: (file) => shell.openPath(file),
       backupDir: path.join(app.getPath("userData"), "startup-backup"),
     });
     let mainReady = false;
@@ -884,7 +894,12 @@ if (!app.requestSingleInstanceLock()) {
       if (!modes.holdsMain()) win.show();
     });
     win.once("closed", () => app.quit());
-    win.loadFile(path.join(__dirname, "../dist/index.html"));
+    let mainLoaded = false;
+    const loadMain = () => {
+      if (mainLoaded || win.isDestroyed()) return;
+      mainLoaded = true;
+      win.loadFile(path.join(__dirname, "../dist/index.html"));
+    };
     // NOVA 1.11: the mode picker greets every sign-in, so NOVA has to start with Windows.
     if (isWindows && app.isPackaged && !state.settings.modePickerSetup)
       updateSettings({ startup: true, modePickerSetup: true }).catch(() => {});
@@ -895,7 +910,9 @@ if (!app.requestSingleInstanceLock()) {
       modes.open({ hold: true });
       startupLog(`indulás (${shown}): módválasztó parancsikonról`);
     } else if (pickerOn && flags.includes("--startup")) {
+      // The picker gets the machine first; the heavier NOVA main menu loads behind it.
       modes.boot();
+      setTimeout(loadMain, 1500);
       startupLog(`indulás (${shown}): módválasztó visszaszámlálással`);
     } else if (pickerOn && isWindows) {
       // Started at sign-in some other way (Startup shortcut, Task Scheduler,
@@ -916,6 +933,13 @@ if (!app.requestSingleInstanceLock()) {
       startupLog(
         `indulás (${shown}): ${pickerOn ? "NOVA főmenü" : "a módválasztó ki van kapcsolva"}`,
       );
+    if (!flags.includes("--startup") || !pickerOn) loadMain();
+    // Programs started at sign-in run without Windows' startup delay (switchable in the picker).
+    if (isWindows && state.settings.fastSignIn !== false)
+      services
+        .signInSnapshot()
+        .then((current) => (current.fastStartup ? null : services.setFastStartup(true)))
+        .catch(() => {});
     // A fullscreen window can become visible on creation; keep it behind the picker until a choice.
     if (modes.holdsMain() && win.isVisible()) win.hide();
     win.webContents.on("before-input-event", (event, input) => {
