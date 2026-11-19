@@ -23,6 +23,7 @@ function createConsoleMode({
   onMediaHome = () => {},
   onModePicker = () => {},
   requestDesktop = null,
+  guardPaused = () => false,
 }) {
   let helper,
     reader,
@@ -131,7 +132,10 @@ function createConsoleMode({
       try {
         // View + Menu held for 3 s opens the mode picker in every mode.
         write("picker|1");
-        write("guard|" + (getSettings().consoleGuard === false ? 0 : 1));
+        write(
+          "guard|" +
+            (getSettings().consoleGuard === false || guardPaused() ? 0 : 1),
+        );
       } catch {}
   }
   function syncHotkey() {
@@ -287,6 +291,7 @@ function createConsoleMode({
     else if (
       msg.type === "guard-home" &&
       enabled &&
+      !guardPaused() &&
       !mediaActive &&
       !suspended &&
       !session
@@ -691,6 +696,7 @@ function createConsoleMode({
       publish();
     },
     command: write,
+    refreshGuard: config,
     recover: () => recoverOnce(),
     returnFromMedia() {
       show(false);

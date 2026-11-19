@@ -10,6 +10,8 @@ contextBridge.exposeInMainWorld("novaPicker", {
   browseJarvis: () => call("browse-jarvis"),
   startupTakeover: () => call("startup-takeover"),
   startupRestore: () => call("startup-restore"),
+  setFastSignIn: (on) => call("fast-sign-in", on),
+  openAutoLogon: () => call("auto-logon"),
   onState: (callback) => {
     const listener = (_event, state) => callback(state);
     ipcRenderer.on("nova-picker:update", listener);

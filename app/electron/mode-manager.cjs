@@ -28,7 +28,7 @@ const PLANS = {
 function validModePatch(patch) {
   if (!patch || typeof patch !== "object") throw Error("Érvénytelen beállítás.");
   const next = {};
-  for (const key of ["modePicker", "jarvisWindow", "consoleGuard"])
+  for (const key of ["modePicker", "jarvisWindow", "consoleGuard", "fastSignIn"])
     if (key in patch) {
       if (typeof patch[key] !== "boolean") throw Error("Érvénytelen beállítás.");
       next[key] = patch[key];
@@ -85,6 +85,9 @@ function createModeManager({
     searched = false,
     startup = { ollama: false, jarvis: false, saved: [] },
     bootAt = 0,
+    booted = false,
+    signIn = { autoLogon: null, fastStartup: null },
+    signInChecked = false,
     enforceTimer = null,
     hotkey = false,
     disposed = false;
@@ -126,6 +129,7 @@ function createModeManager({
       },
       jarvisDir,
       startup,
+      signIn,
       services: status,
       profile: s.name,
       animations: s.animations !== false,
@@ -162,6 +166,10 @@ function createModeManager({
       ]);
       status = next;
       startup = services.startupSnapshot();
+      if (!signInChecked) {
+        signInChecked = true;
+        signIn = await services.signInSnapshot().catch(() => signIn);
+      }
     } finally {
       statusBusy = false;
     }
@@ -232,6 +240,7 @@ function createModeManager({
     if (!options.preselect) preselect = null;
     if (job?.done) job = null;
     searched = false;
+    signInChecked = false;
     const display =
       reason === "boot"
         ? screen.getPrimaryDisplay()
@@ -278,6 +287,11 @@ function createModeManager({
         statusTimer = null;
         onVisible(false);
       }
+    });
+    // Topmost is lifted while a Windows dialog of another program is open.
+    win.on("focus", () => {
+      if (!win.isDestroyed() && !win.isAlwaysOnTop())
+        win.setAlwaysOnTop(true, "screen-saver");
     });
     win.once("ready-to-show", () => {
       if (win.isDestroyed()) return;
@@ -429,6 +443,9 @@ function createModeManager({
   }
 
   function boot() {
+    // Once per NOVA start: a second sign-in launch only brings the picker forward.
+    if (booted) return;
+    booted = true;
     const s = settings();
     bootAt = now();
     holdMain = true;
@@ -501,6 +518,26 @@ function createModeManager({
     publish();
     return startup;
   });
+  register("fast-sign-in", async (on) => {
+    if (typeof on !== "boolean") throw Error("Érvénytelen beállítás.");
+    const fast = await services.setFastStartup(on);
+    await saveSettings({ fastSignIn: on });
+    signIn = { ...signIn, fastStartup: fast };
+    publish();
+    return fast;
+  });
+  register("auto-logon", async () => {
+    // netplwiz would open behind the topmost picker.
+    if (picker && !picker.isDestroyed()) picker.setAlwaysOnTop(false);
+    try {
+      await services.openAutoLogon();
+    } catch (e) {
+      if (picker && !picker.isDestroyed()) picker.setAlwaysOnTop(true, "screen-saver");
+      throw e;
+    }
+    signInChecked = false;
+    return true;
+  });
 
   if (registerHotkey)
     try {
@@ -514,6 +551,15 @@ function createModeManager({
     apply,
     snapshot,
     holdsMain: () => holdMain,
+    // Keeps NOVA's main window hidden while the sign-in check runs.
+    hold() {
+      if (!picker) holdMain = true;
+    },
+    release() {
+      if (!holdMain || picker) return;
+      holdMain = false;
+      showMain();
+    },
     get visible() {
       return !!picker && !picker.isDestroyed();
     },
