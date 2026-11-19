@@ -35,6 +35,7 @@ function validModePatch(patch) {
     "fastSignIn",
     "hideTaskbar",
     "quitOutsideConsole",
+    "parsecPicker",
   ])
     if (key in patch) {
       if (typeof patch[key] !== "boolean") throw Error("Érvénytelen beállítás.");
@@ -137,6 +138,7 @@ function createModeManager({
         consoleGuard: s.consoleGuard !== false,
         hideTaskbar: s.hideTaskbar !== false,
         quitOutsideConsole: s.quitOutsideConsole !== false,
+        parsecPicker: s.parsecPicker !== false,
         jarvisPath: s.jarvisPath || "",
       },
       jarvisDir,

@@ -1,4 +1,24 @@
-﻿NOVA 1.11.4 – JARVIS ÉS WINDOWS MÓDBAN A NOVA BEZÁRUL
+﻿NOVA 1.11.5 – MÓDVÁLASZTÓ PARSEC-CSATLAKOZÁSKOR
+
+Ha a géphez új Parsec-kapcsolat érkezik (például a tévére kötött laptopról),
+előjön a módválasztó, visszaszámlálás nélkül. Futó NOVA mellett a NOVA, bezárt
+NOVA mellett (Jarvis és Windows mód) a kis kontrolleres figyelő indítja el.
+Nem jön elő:
+– játék közben (a NOVA-ból indított, követett játéknál) és NOVA-ból nyitott
+  média közben;
+– ha ugyanaz a felhasználó a kapcsolat megszakadása után 2 percen belül újra
+  csatlakozik;
+– bejelentkezéskor, mert akkor a módválasztó amúgy is jön.
+A NOVA a Parsec naplóját olvassa: %ProgramData%\Parsec\log.txt (gépre
+telepített Parsec) és %APPDATA%\Parsec\log.txt (felhasználóra telepített).
+A „Név#szám connected.” sorokat figyeli. Ha nálad máshogy néz ki ez a sor, és
+nem jön elő a választó, a napló egy csatlakozási sorával igazítható.
+Minden észlelt csatlakozás bekerül a %APPDATA%\NOVA\modvalaszto-naplo.txt
+indulási naplóba. Kikapcsolható: módválasztó > Beállítások > Módválasztó
+Parsec-csatlakozáskor.
+
+
+NOVA 1.11.4 – JARVIS ÉS WINDOWS MÓDBAN A NOVA BEZÁRUL
 
 Jarvis vagy Windows mód választása után a NOVA teljesen kilép, így memóriát és
 videókártyát sem foglal. A Jarvis és az Ollama ettől tovább fut.
