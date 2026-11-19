@@ -28,7 +28,7 @@ const PLANS = {
 function validModePatch(patch) {
   if (!patch || typeof patch !== "object") throw Error("Érvénytelen beállítás.");
   const next = {};
-  for (const key of ["modePicker", "jarvisWindow", "consoleGuard", "fastSignIn"])
+  for (const key of ["modePicker", "jarvisWindow", "consoleGuard", "fastSignIn", "hideTaskbar"])
     if (key in patch) {
       if (typeof patch[key] !== "boolean") throw Error("Érvénytelen beállítás.");
       next[key] = patch[key];
@@ -80,6 +80,8 @@ function createModeManager({
     ending = false,
     status = { ollama: null, jarvis: null },
     statusTimer = null,
+    focusTimer = null,
+    dialogOpen = false,
     statusBusy = false,
     jarvisDir = "",
     searched = false,
@@ -125,6 +127,7 @@ function createModeManager({
         defaultMode: s.defaultMode,
         jarvisWindow: s.jarvisWindow !== false,
         consoleGuard: s.consoleGuard !== false,
+        hideTaskbar: s.hideTaskbar !== false,
         jarvisPath: s.jarvisPath || "",
       },
       jarvisDir,
@@ -201,11 +204,33 @@ function createModeManager({
     return true;
   }
 
+  // At sign-in Explorer, the taskbar and other startup programs (Steam, Discord…)
+  // take the foreground. The picker takes it back for a while, so the controller
+  // and the keyboard reach it.
+  function keepFocus(win, ms) {
+    if (focusTimer) clearRepeat(focusTimer);
+    const until = now() + ms;
+    focusTimer = setRepeat(() => {
+      if (picker !== win || win.isDestroyed() || now() > until) {
+        clearRepeat(focusTimer);
+        focusTimer = null;
+        return;
+      }
+      // Not over a dialog of the picker or a Windows dialog opened from it.
+      if (dialogOpen || !win.isAlwaysOnTop() || win.isFocused()) return;
+      win.moveTop();
+      win.focus();
+      focusNative(win);
+    }, 700);
+  }
+
   function destroyPicker() {
     const old = picker;
     picker = null;
     if (statusTimer) clearRepeat(statusTimer);
     statusTimer = null;
+    if (focusTimer) clearRepeat(focusTimer);
+    focusTimer = null;
     if (old && !old.isDestroyed()) old.destroy();
     onVisible(false);
   }
@@ -300,6 +325,7 @@ function createModeManager({
       win.webContents.focus();
       // Windows may refuse focus to a new window over a game; NOVA's helper can take it.
       focusNative(win);
+      keepFocus(win, reason === "boot" ? 30000 : 4000);
     });
     win
       .loadFile(path.join(__dirname, "mode-picker.html"))
@@ -495,10 +521,15 @@ function createModeManager({
     return snapshot().settings;
   });
   register("browse-jarvis", async () => {
-    const result = await dialog.showOpenDialog(picker, {
-      title: "A Jarvis mappája (amelyikben a jarvis.py van)",
-      properties: ["openDirectory"],
-    });
+    dialogOpen = true;
+    const result = await dialog
+      .showOpenDialog(picker, {
+        title: "A Jarvis mappája (amelyikben a jarvis.py van)",
+        properties: ["openDirectory"],
+      })
+      .finally(() => {
+        dialogOpen = false;
+      });
     if (result.canceled || !result.filePaths?.[0]) return null;
     const dir = result.filePaths[0];
     if (!services.validJarvisDir(dir))

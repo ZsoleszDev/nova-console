@@ -1,4 +1,18 @@
-﻿NOVA 1.11.2 – BEKAPCSOLÁS UTÁN RÖGTÖN A MÓDVÁLASZTÓ
+﻿NOVA 1.11.3 – NINCS TÁLCA A MÓDVÁLASZTÓ ÉS A KONZOL MÓD ALATT
+
+A módválasztó és a konzol mód alatt a NOVA elrejti a Windows tálcáját, minden
+kijelzőn. Windows és Jarvis módban, a módválasztó bezárásakor, a NOVA-ból
+kilépéskor, és ha a NOVA váratlanul leáll, a tálca visszajön. Ha a tálca mégis
+rejtve maradna, a NOVA következő indítása visszahozza (vagy a Feladatkezelőben
+a Windows Intéző újraindítása). Kikapcsolható: módválasztó > Beállítások >
+Tálca elrejtése. Bekapcsoláskor a NOVA segédje néhány másodperc alatt indul el;
+addig a tálca egy pillanatra még látszhat.
+Bejelentkezéskor a módválasztó fél percig visszaveszi a fókuszt, ha egy induló
+program (például Steam vagy Discord) elvenné, így a kontroller és a billentyűzet
+neki szól. A Windows saját ablakai (fiókbeállítás, mappaválasztó) idejére nem.
+
+
+NOVA 1.11.2 – BEKAPCSOLÁS UTÁN RÖGTÖN A MÓDVÁLASZTÓ
 
 Cél: bekapcsolod a gépet, és egyből a teljes képernyős módválasztó jön.
 Ehhez két Windows-beállítás kell, mindkettő a módválasztó Beállításaiban (Y):

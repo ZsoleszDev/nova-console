@@ -50,6 +50,18 @@ namespace Nova {
   [DllImport("user32.dll")]static extern uint SendInput(uint count,Input[] inputs,int size);
   [DllImport("user32.dll",CharSet=CharSet.Unicode)]static extern int GetClassName(IntPtr hwnd,StringBuilder name,int count);
   [DllImport("user32.dll")]static extern IntPtr GetWindow(IntPtr hwnd,uint command);
+  [DllImport("user32.dll",CharSet=CharSet.Unicode)]static extern IntPtr FindWindowEx(IntPtr parent,IntPtr after,string className,string title);
+  // Taskbar: hidden while the mode picker or Konzol mode owns the screen; always shown again when this helper ends.
+  static bool TaskbarHidden;
+  static readonly List<IntPtr> HiddenTaskbars=new List<IntPtr>();
+  static List<IntPtr> Taskbars(){
+   List<IntPtr> bars=new List<IntPtr>();IntPtr main=FindWindowEx(IntPtr.Zero,IntPtr.Zero,"Shell_TrayWnd",null);if(main!=IntPtr.Zero)bars.Add(main);
+   IntPtr next=IntPtr.Zero;while((next=FindWindowEx(IntPtr.Zero,next,"Shell_SecondaryTrayWnd",null))!=IntPtr.Zero)bars.Add(next);
+   return bars;
+  }
+  static void HideTaskbars(){foreach(IntPtr bar in Taskbars())if(IsWindowVisible(bar)){ShowWindow(bar,0);if(!HiddenTaskbars.Contains(bar))HiddenTaskbars.Add(bar);}}
+  // Also brings back a taskbar left hidden by an earlier helper that was stopped from outside.
+  static void RestoreTaskbars(){foreach(IntPtr bar in HiddenTaskbars)if(IsWindow(bar)&&!IsWindowVisible(bar))ShowWindow(bar,8);HiddenTaskbars.Clear();foreach(IntPtr bar in Taskbars())if(!IsWindowVisible(bar))ShowWindow(bar,8);}
   static bool OwnDialog(IntPtr target){
    if(Pid(target)!=NovaPid)return false;
    StringBuilder name=new StringBuilder(256);GetClassName(target,name,name.Capacity);if(name.ToString()!="#32770")return false;
@@ -211,6 +223,7 @@ namespace Nova {
    if(command=="guide-hide"){Guide=IntPtr.Zero;DesktopOpen=GetForegroundWindow()==Dashboard;return;}
    if(command=="picker|1"||command=="picker|0"){PickerCombo=command=="picker|1";if(!PickerCombo)PickerLatched=false;return;}
    if(command=="guard|1"||command=="guard|0"){GuardEnabled=command=="guard|1";GuardSince=0;return;}
+   if(command=="taskbar|1"||command=="taskbar|0"){TaskbarHidden=command=="taskbar|1";if(TaskbarHidden)HideTaskbars();else RestoreTaskbars();return;}
    if(command=="suspend|1"||command=="suspend|0"){Suspended=command=="suspend|1";StopRumble();LastPadActivity=Clock.ElapsedMilliseconds;PadSeeded=false;return;}
    string[] config=command.Split('|');
    if(config.Length==5&&config[0]=="config"){int deadzone,repeat;if(Int32.TryParse(config[3],out deadzone)&&Int32.TryParse(config[4],out repeat)){ConsoleEnabled=config[1]=="1";OverlayEnabled=config[2]=="1";Deadzone=Math.Max(20,Math.Min(70,deadzone));Repeat=Math.Max(100,Math.Min(300,repeat));}return;}
@@ -301,8 +314,8 @@ namespace Nova {
    try{while(!Stopping&&IsWindow(Dashboard)){
     string command;while(Queue.TryDequeue(out command))try{Command(command);}catch{}
     long now=Clock.ElapsedMilliseconds;Controller(now);
-    if(now-lastScan>=500){Observe();Guard(now);lastScan=now;}Thread.Sleep(20);
-   }}catch{Emit("{\"type\":\"error\",\"message\":\"Az automatikus visszatérés megállt. A Ctrl+Alt+N gyorsbillentyűvel visszahívhatod a NOVA-t.\"}");}finally{StopRumble();}
+    if(now-lastScan>=500){Observe();Guard(now);if(TaskbarHidden)HideTaskbars();lastScan=now;}Thread.Sleep(20);
+   }}catch{Emit("{\"type\":\"error\",\"message\":\"Az automatikus visszatérés megállt. A Ctrl+Alt+N gyorsbillentyűvel visszahívhatod a NOVA-t.\"}");}finally{StopRumble();RestoreTaskbars();}
   }
  }
 }

@@ -424,6 +424,7 @@ function settingRows() {
     { id: "jarvisPath", type: "action", label: "Jarvis mappája", sub: state.jarvisDir || "Nincs megadva: válaszd ki a mappát, amiben a jarvis.py van.", value: "Tallózás…" },
     { id: "jarvisWindow", type: "toggle", label: "Jarvis ablak megnyitása", sub: "Jarvis módban a Jarvis saját ablaka is megnyílik.", on: s.jarvisWindow },
     { id: "consoleGuard", type: "toggle", label: "Asztal elrejtése konzol módban", sub: "Ha konzol módban előkerül a Windows asztala, a NOVA pár másodperc múlva visszajön.", on: s.consoleGuard },
+    { id: "hideTaskbar", type: "toggle", label: "Tálca elrejtése", sub: "A módválasztó és a konzol mód alatt a Windows tálcája nem látszik. Windows és Jarvis módban, illetve a NOVA bezárásakor visszajön.", on: s.hideTaskbar },
     own.length
       ? { id: "takeover", type: "action", label: "Saját automatikus indítás", sub: `Az Indítópultból magától indul: ${own.join(", ")}. Javasolt, hogy csak a NOVA indítsa őket.`, value: "A NOVA vegye át" }
       : saved

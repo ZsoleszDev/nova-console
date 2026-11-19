@@ -186,6 +186,7 @@ function setup() {
       "jarvisWindow",
       "consoleGuard",
       "fastSignIn",
+      "hideTaskbar",
     ])
       if (k in patch) {
         if (typeof patch[k] !== "boolean")
@@ -728,6 +729,11 @@ if (!app.requestSingleInstanceLock()) {
       requestDesktop,
       // The picker owns the screen while it is open or a sign-in choice is pending.
       guardPaused: () => !!modes && (modes.visible || modes.holdsMain()),
+      // No Windows taskbar over the picker or Konzol mode.
+      taskbarHidden: () =>
+        state.settings.hideTaskbar !== false &&
+        (!!state.settings.consoleMode ||
+          (!!modes && (modes.visible || modes.holdsMain()))),
       onPad: (pad) => {
         if (shouldNotifyBattery(pad)) showBattery();
         if (!win.isDestroyed())
@@ -805,7 +811,7 @@ if (!app.requestSingleInstanceLock()) {
       },
       onVisible: (visible) => {
         if (visible) idleClock?.reset();
-        consoleMode.refreshGuard();
+        consoleMode.refreshConfig();
       },
       focusNative: (target) => {
         if (!isWindows || target.isDestroyed()) return;
@@ -918,7 +924,7 @@ if (!app.requestSingleInstanceLock()) {
       // Started at sign-in some other way (Startup shortcut, Task Scheduler,
       // Windows reopening apps)? NOVA stays hidden until that is known.
       modes.hold();
-      consoleMode.refreshGuard();
+      consoleMode.refreshConfig();
       services.sessionAge().then((age) => {
         const signIn = age !== null && age < SIGN_IN_WINDOW_MS;
         startupLog(
@@ -927,7 +933,7 @@ if (!app.requestSingleInstanceLock()) {
         );
         if (signIn) modes.boot();
         else modes.release();
-        consoleMode.refreshGuard();
+        consoleMode.refreshConfig();
       });
     } else
       startupLog(

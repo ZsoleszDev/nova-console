@@ -34,6 +34,7 @@ const defaults = {
   jarvisWindow: true,
   consoleGuard: true,
   fastSignIn: true,
+  hideTaskbar: true,
 };
 const modes = ["console", "jarvis", "windows"];
 const modeCountdowns = [10, 15, 20, 30, 45, 60, 90, 120];
