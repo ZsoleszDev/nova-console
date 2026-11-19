@@ -77,3 +77,15 @@ test("both Parsec log locations are watched", () => {
     "C:\\Users\\Z\\AppData\\Roaming\\Parsec\\log.txt",
   ]);
 });
+
+test("lines about connecting in an unknown wording are reported for adjusting", () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "parsec-"));
+  const log = path.join(dir, "log.txt");
+  fs.writeFileSync(log, "");
+  const seen = [], lines = [];
+  const watch = createParsecWatch({ paths: [log], onConnect: (u) => seen.push(u), onLine: (l) => lines.push(l), setRepeat: () => null });
+  fs.appendFileSync(log, "[I 2026-11-19 20:00:00] Client connected from 192.168.1.20\n[I 2026-11-19 20:00:01] Encoder ready\n");
+  watch.poll();
+  assert.deepEqual(seen, []);
+  assert.deepEqual(lines, ["[I 2026-11-19 20:00:00] Client connected from 192.168.1.20"]);
+});

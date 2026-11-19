@@ -1,4 +1,18 @@
-﻿NOVA 1.11.5 – MÓDVÁLASZTÓ PARSEC-CSATLAKOZÁSKOR
+﻿NOVA 1.11.6 – MEGBÍZHATÓBB FIGYELŐ BEZÁRT NOVA MELLETT, RÉSZLETES NAPLÓ
+
+Javítás: Jarvis módban a Parsec-csatlakozás nem hozta elő a módválasztót.
+A bezárt NOVA melletti figyelő mostantól egy kis, ablak nélküli program
+(%APPDATA%\NOVA\figyelo\nova-figyelo-….exe). A NOVA egyszer, a háttérben
+állítja elő a saját forrásából, így futás közben nem kell hozzá PowerShell vagy
+konzol. Ha ez nem sikerül, a korábbi PowerShell-es figyelő indul.
+A figyelő mindent beír a %APPDATA%\NOVA\modvalaszto-naplo.txt naplóba:
+elindult-e, eléri-e a Parsec naplóját, kit látott csatlakozni, és mikor lép ki.
+Minden „connect” szót tartalmazó, de fel nem ismert Parsec-sort is beír (legfeljebb
+20-at), így egy eltérő Parsec-verzióhoz a felismerés igazítható. A NOVA
+indulásakor a két Parsec-napló elérhetősége is bekerül.
+
+
+NOVA 1.11.5 – MÓDVÁLASZTÓ PARSEC-CSATLAKOZÁSKOR
 
 Ha a géphez új Parsec-kapcsolat érkezik (például a tévére kötött laptopról),
 előjön a módválasztó, visszaszámlálás nélkül. Futó NOVA mellett a NOVA, bezárt

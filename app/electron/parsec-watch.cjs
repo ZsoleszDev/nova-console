@@ -20,6 +20,7 @@ function parsecLogPaths(env = process.env, path = pathDefault.win32) {
 function createParsecWatch({
   paths,
   onConnect,
+  onLine = () => {},
   fs = fsDefault,
   now = Date.now,
   interval = 1500,
@@ -57,7 +58,11 @@ function createParsecWatch({
       return;
     }
     const joined = CONNECTED.exec(text);
-    if (!joined) return;
+    if (!joined) {
+      // Unknown wording of this Parsec version: reported so it can be matched.
+      if (/connect/i.test(text)) onLine(text.slice(0, 200));
+      return;
+    }
     const user = joined[1];
     const last = dropped.get(user);
     if (last !== undefined && now() - last < RECONNECT_MS) return;

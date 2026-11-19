@@ -27,6 +27,7 @@ const { createArtwork } = require("./artwork.cjs");
 const { createModeManager } = require("./mode-manager.cjs");
 const { createServices } = require("./services.cjs");
 const { createParsecWatch, parsecLogPaths } = require("./parsec-watch.cjs");
+const { createRecall } = require("./recall.cjs");
 protocol.registerSchemesAsPrivileged([
   {
     scheme: "nova-art",
@@ -69,6 +70,7 @@ let win,
   recoveryTimer,
   modes,
   parsec,
+  recall,
   batteryPending = false,
   updateSettings;
 const isWindows = process.platform === "win32";
@@ -541,49 +543,30 @@ function setup() {
 // Jarvis / Windows mode: NOVA quits completely, so it holds no memory or GPU.
 // A small controller watcher (View + Menu 3 s) and the Ctrl+Alt+M shortcut key
 // of the "NOVA – Mód választása" shortcut bring the picker back.
-let quitTimer = null;
-function startRecallWatcher() {
-  if (!isWindows || !app.isPackaged) return;
-  try {
-    spawn(
-      "powershell.exe",
-      [
-        "-NoLogo",
-        "-NoProfile",
-        "-NonInteractive",
-        "-ExecutionPolicy",
-        "Bypass",
-        "-WindowStyle",
-        "Hidden",
-        "-File",
-        path.join(__dirname, "windows/recall.ps1"),
-        "-NovaExe",
-        process.execPath,
-        "-NovaPid",
-        String(process.pid),
-        "-Parsec",
-        state.settings.parsecPicker === false ? "0" : "1",
-      ],
-      {
-        cwd: path.dirname(process.execPath),
-        detached: true,
-        stdio: "ignore",
-        windowsHide: true,
-      },
-    ).unref();
-  } catch {}
-}
+let quitTimer = null,
+  quitting = false;
 function quitAfterMode() {
-  if (state.settings.quitOutsideConsole === false) return;
+  if (state.settings.quitOutsideConsole === false || quitting) return;
   clearInterval(quitTimer);
   const attempt = () => {
+    if (quitting) return true;
     if (!["jarvis", "windows"].includes(state.settings.currentMode)) return true;
     // Wait while the picker is open again, a switch runs, or Ollama / Jarvis
     // Startup shortcuts are still being kept closed after sign-in.
     if (modes.visible || modes.busy() || modes.enforcing()) return false;
+    quitting = true;
     startupLog(`kilépés: ${state.settings.currentMode === "jarvis" ? "Jarvis" : "Windows"} mód`);
-    startRecallWatcher();
-    app.quit();
+    recall
+      .start({ parsec: state.settings.parsecPicker !== false })
+      .catch(() => false)
+      .finally(() => {
+        // The picker was called back meanwhile: NOVA stays, the watcher steps aside.
+        if (modes.visible || !["jarvis", "windows"].includes(state.settings.currentMode)) {
+          quitting = false;
+          return;
+        }
+        app.quit();
+      });
     return true;
   };
   if (!attempt())
@@ -898,10 +881,38 @@ if (!app.requestSingleInstanceLock()) {
         } catch {}
       },
     });
+    recall = createRecall({
+      run,
+      spawn,
+      dataDir: app.getPath("userData"),
+      novaExe: process.execPath,
+      novaPid: process.pid,
+      logFile: path.join(app.getPath("userData"), "modvalaszto-naplo.txt"),
+      log: startupLog,
+      enabled: isWindows && app.isPackaged,
+    });
+    // Prepared early, so it is ready when Jarvis / Windows mode closes NOVA.
+    if (state.settings.quitOutsideConsole !== false)
+      setTimeout(() => recall.build().catch(() => null), 8000).unref?.();
     // A new Parsec connection (e.g. the laptop on the TV) brings up the mode picker.
+    let parsecSamples = 0;
+    if (isWindows && state.settings.parsecPicker !== false)
+      for (const file of parsecLogPaths()) {
+        let status = "nem található";
+        try {
+          fs.closeSync(fs.openSync(file, "r"));
+          status = "olvasható";
+        } catch (e) {
+          if (e.code !== "ENOENT") status = "nem olvasható (" + e.code + ")";
+        }
+        startupLog(`Parsec-napló (${file}): ${status}`);
+      }
     if (isWindows)
       parsec = createParsecWatch({
         paths: parsecLogPaths(),
+        onLine: (line) => {
+          if (parsecSamples++ < 20) startupLog("Parsec-sor: " + line);
+        },
         onConnect: () => {
           if (state.settings.parsecPicker === false) return;
           // The sign-in picker is on its way anyway.
