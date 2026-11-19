@@ -1,0 +1,158 @@
+﻿NOVA 1.10.2 – ELLENŐRZÉSI JEGYZET
+2026. november 18.
+
+– 1.10.2: 66 Node-teszt, 64 felületi ellenőrzés és két Electron próba sikeres.
+  A helyettesített Windows segéd tesztje ellenőrizte a tálcáról visszaállítást
+  kikapcsolt játékidőméréssel, a natív fókusz kérését, a Windows módra váltást
+  és az aktív médiamunkamenet elsőbbségét.
+– A Windowsos konzolsegéd C# 5 / .NET Framework 4.8 fordítása sikeres.
+  Az 1.10.1 → 1.10.2 frissítő három próbája helyettesített Windows
+  rendszerhívásokkal futott. A valódi Windowsos fókuszváltás próba hátravan.
+
+– 1.10.1: 64 Node-teszt és 202 felületi ellenőrzés sikeres.
+  Fókuszváltás, játékválasztás animációja, cím és mért játékidő,
+  valamint a csökkentett mozgás beállítása.
+– 29 Electron-ellenőrzés a médiatárral és az alvásképernyővel.
+  Mappafelvétel helyettesített mappaválasztóval és beírt útvonallal,
+  hibás útvonal jelzése, új gyűjtemény kijelölése és hely a lábléc felett.
+– Az 1.10.0 → 1.10.1 frissítés, hiba utáni visszaállítás és a futó NOVA
+  észlelése sikeres helyettesített Windows rendszerhívásokkal.
+  A Windowsos mappaválasztóhoz és fizikai kontrollerhez Windowsos próba kell.
+
+– 1.10.0: 64 Node-teszt és 196 felületi ellenőrzés sikeres.
+  Kijelölésváltás és teljes négyzetet kitöltő borító négy ablakméret mellett,
+  egységes Médiatár, névvel felvett vegyes mappa, valódi video-, hang- és
+  képdekódolás, korábbi borítók, sorozatrészek és folytatási hely.
+– Kiválasztott mappán kívüli és átirányított fájl elutasítása, a hozzáférés
+  megszüntetése mappaeltávolítás után, eredeti fájlok megőrzése.
+– Az 1.9.2 → 1.10.0 frissítés, hiba utáni visszaállítás és a futó NOVA
+  ellenőrzése sikeres helyettesített Windows rendszerhívásokkal.
+  A Windowsos kontrollert és a streamingfiókokat ezek a próbák nem használják.
+
+– 1.9.2: Electronban ellenőrizve a színes borító, háttérkép és YouTube-jel,
+  a fehér kijelölés és a szürke médiatár. A médiatár 25 ellenőrzése sikeres.
+  Az 1.9.1 → 1.9.2 frissítés, hibás frissítés visszaállítása és futó NOVA
+  észlelése sikeres a helyettesített Windows rendszerhívásokkal.
+
+– 1.9.1: 63 Node-teszt, 226 felületi és hangellenőrzés, 25 natív médiatár-,
+  óra- és ébredési ellenőrzés. A 32 C# navigációs ellenőrzés és a Windowsos
+  segédek fordítása sikeres. Az 1.9.0 → 1.9.1 frissítő adatmegőrzési és
+  visszaállítási próbája sikeres, helyettesített Windows rendszerhívásokkal.
+– Külön HBO és Disney próbában felismert keresőmezőre átlátszatlan billentyűzet
+  nyílik. Bezárás alatt a késői billentyűzet-, panel- és hibajelzés nem nyithat
+  vissza ablakot. A visszatérés újraindítja az elakadt konzolsegédet.
+– A saját médiatár szürke háttere, fehér fókuszszíne és a helyi videók lejátszása
+  ellenőrizve. Az élő HBO mezőfelismerés és a fizikai kontroller visszatérése
+  Windowsos gépen még ellenőrizendő.
+
+– Új az 1.9-ben: 24 további natív Electron-ellenőrzés a médiatárhoz,
+  valódi videódekódoláshoz, évadmappák közti részváltáshoz, borítóimporthoz,
+  pozíciómentéshez, megtekintett jelöléshez, B/Y kezeléshez, mappavédelemhez,
+  natív beállításmentéshez, tényleges órablakhoz és ébredési eseményhez.
+– Óra: a megjelenést egér/billentyűzet ÉS kontroller-inaktivitáshoz kötő
+  szabály, médiakizárás, stale heartbeat, zárolás és új inaktivitási idő;
+  két kijelző helyettesített ablakokkal, showInactive / focusable:false,
+  késői oldalbetöltés nem hozhatja vissza a bezárt órát. Egy valódi Linux
+  Electron-órablak renderelése is tesztelt. Az idő/aktivitás helyettesített.
+– Helyreállás: nincs kéretlen fókuszváltás, új zárolás érvényteleníti a
+  korábbi ébredést, új segéd nem kap elavult folyamat-újracsatolást.
+– Akkumulátor: küszöb és ismétléskorlát, vezetékes/ismeretlen állapot.
+  Fizikai rezgés, tényleges akkumulátorérték és Windows-értesítés nem tesztelt.
+– A médiatár adatai helyben maradnak; forrásmappa eltávolításakor a fájlok
+  változatlanok. Offline mappa megmarad, módosult fájl frissítést igényel,
+  szimbolikus mappahurok nem járódik be.
+
+– Új az 1.8-ban: Folytatás központ, lapváltás utáni kijelölésmegőrzés,
+  X játékopciók, megerősített játékbezárás és alvó mód a játékpanelen.
+  Az új ellenőrzések: folytatási adatok megőrzése új példányban, módosult /
+  hiányzó fájl elutasítása, rövid klip befejezési küszöbe, következő rész,
+  pontos játékmenethez kötött bezárási visszajelzés és megerősítés.
+– Valódi Electron-videóval: kezdőlapi folytatás a mentett helyről,
+  B után az eredeti csempe fókusza, végignézett rész után a következő fájl
+  tényleges dekódolása az elejétől. Felületi próbában a futó játékhoz
+  visszaváltás nem indít új példányt; X az adott játék adatlapját nyitja.
+– Játékpanel: Mégse az alapértelmezés, D-pad a megerősítésen belül marad,
+  B nem küld bezárást vagy visszaváltást, A az aktuális játékmenetet küldi,
+  játékmenetváltás törli a régi megerősítést. Alvás csak helyettesített
+  művelettel tesztelt; valódi gépalvás és Windows WM_CLOSE itt nem futott.
+
+– Új: megerősített médiabezárás, új indítás várakoztatása a bezárás végéig,
+  késői panelesemények kizárása, bezárási időtúllépés és segédhiba jelzése.
+  A natív Electron-próba a böngésző-helyettesítő ablak tényleges bezárását is ellenőrzi.
+  A valódi Windows WM_CLOSE / profilfolyamatok kilépése itt nem futtatható.
+– Új: 14 élményellenőrzés: hang- és animációbeállítás mentése, visszatöltése,
+  csökkentett mozgás, valódi OfflineAudioContext hangszintézis, kis csúcsszint,
+  lágy indulás, rövid lecsengés és némítás. Hangszórós meghallgatás nem történt.
+
+– Új: 32 futtatott C# kontrollerlogikai ellenőrzés a Windowsos segéd által
+  használt MediaNavigation osztályon: három mód, gombismétlés, holtjáték,
+  irányváltás, érvénytelen beállítás, sebesség. Ez nem Windows SendInput-teszt.
+– Új: módváltás és mutatósebesség kontrollerrel, panelből külön Escape,
+  három további panelméret, IPC-parancskorlát, módmegőrzés szolgáltatásváltáskor.
+– Új: a helyi lejátszó következő rész gombja valódi Electron-videó mellett
+  a böngészős Gamepad-tartalék útvonalról is elérhető (szimulált kontroller).
+
+– 62 Node-teszt: állapotmigráció, biztonságos indítási célok, Steam, IPC-őrök,
+  médiavezérlés, meghajtók, lejátszási streamek, játékpanel és játékidő.
+– Új film-mód ellenőrzések: Disney/HBO alatt nincs létrehozott HUD-ablak,
+  előtér-visszaigazolás után rejtett főablak; kézi X és visszahívás megmarad.
+  YouTube-ból váltás a régi HUD-ot megsemmisíti, a tétlen HUD natívan rejtődik.
+  Rögzített Edge-beállítási címek, késői automatikus mezőjelzés és Home utáni
+  állapotjelzés kezelése. A folyamatok és Windows-üzenetek helyettesítve.
+– Valódi Linux Electron-ablakokkal a film mód alatt nulla látható NOVA-ablak,
+  és Home után ismét látható főablak ellenőrizve. Ez nem védett videólejátszás.
+– Az 1.9.0-ban újrafutott 62 Node-teszt, 226 felületi ellenőrzés,
+  médiaátadás, médiabillentyűzet, konzolmód, játékpanel és frissítő natív próbája.
+  A képimport és a következő rész tényleges lejátszási próbái is újrafutottak.
+– Képtesztek: független borító és háttér, azonosítók ellenőrzése,
+  külön alaphelyzet, sikertelen mentés visszaállítása és fájltakarítás.
+  Valódi Electronban 800×1000 borító és 3840×2160 háttér importálása,
+  nova-art képek tényleges dekódolása, elkülönült csempe / háttér,
+  játék képei, alkalmazás-újraindítás utáni megőrzés, négy ablakméret.
+  A teszt csak a fájlválasztó eredményét adja meg; a képkezelés valódi.
+– Következő rész: természetes 1/2/10 sorrend, nem videók kihagyása,
+  utolsó rész és tokenkorlát. Valódi Electron videólejátszásban időzített
+  gomb, fókusz megőrzése, D-pad fel / A, tényleges következő fájl dekódolása.
+– Fókusztesztek: hideg indulás és késői ablakfelismerés, elrejtett panel
+  az átadás előtt, kéréshez kötött visszaigazolás, korlátozott újrapróbálás,
+  időtúllépés, gyors Disney/HBO/YouTube-váltás egyetlen böngészővel,
+  NOVA-ba visszatérés és másik alkalmazásra váltás utáni megszakítás,
+  vezérlőhiba, háttérbeli böngészőbezárás kéretlen fókuszváltás nélkül.
+  A Windowsos segéd és folyamatok ezekben helyettesítve vannak.
+– 226 felületi ellenőrzés, mind újrafutott az 1.9.0-ban: 72 általános,
+  53 médiás / billentyűzetes, 32 konzolmód-, 32 játékpanel / játékidő /
+  kontrollerbeállítási, 23 fájlkezelő / HBO / háttérbeli kontrollercsatorna,
+  valamint 14 hang- / animáció- / beállításellenőrzés.
+  Négy fő ablakméret, továbbá több külön játékpanelméret.
+– Tényleges Linux Electron: kész felület, sandboxolt preload és valódi IPC,
+  mentés, kontrolleres billentyűzet A/X/Y és sorvégi navigáció, játékpanel,
+  hibás visszatérés, konzolmód, suspend/resume és platformkorlátok.
+– Külön átadási Electron-próba valódi ablakokkal: panelrejtés az átadás előtt,
+  Disney/HBO-váltás, késői NOVA-fókusz kizárása és megszakított visszatérés.
+  Helyi böngésző-helyettesítővel és előállított segédüzenetekkel fut;
+  a Windows előtérkezelési API-jait ez a próba nem futtatja.
+– Tényleges nova-media:// lejátszás: generált WebM és H.264/AAC MP4,
+  szünet / tekerés, SRT két feliratcue-val, képdekódolás, B/View visszatérés,
+  folytatási hely mentése, programfájlok indításának tiltása.
+– Meghajtók: indítási paraméterek, C/D/E/Z-lista, hiányos lista és frissítés
+  utáni új meghajtó helyettesített Windows-rendszerrel; D: megnyitás,
+  B vissza és F: USB megjelenése frissítés után a felületi próbában.
+– Játékidő: csak előtéridő, Alt+Tab / menü / alvás / hiányzó szívverés,
+  monoton óra, mentés, dupla jóváírás kizárása és megszakadt alkalom.
+– ConsoleHost + CoreAudio és MediaController: C# 5 / .NET Framework 4.8
+  referencia-assemblykkel sikeres fordítás. PowerShell parserellenőrzés sikeres.
+– Frissítő: 1.8.0 → 1.9.0 frissítés, hiba utáni visszaállítás,
+  futó NOVA visszautasítása, felhasználói adatok megtartása.
+  Valódi fájlműveletek; Windows shell / folyamatellenőrzés helyettesítve.
+– Csomag: verzió, ZIP CRC, SHA-256, PowerShell UTF-8 BOM és fájltartalom.
+
+Ez Linuxos ellenőrzés. Valódi Windowsos előtérkezelés, fizikai Xbox-kontroller,
+Windowszal indulás, játék fölötti overlay, Core Audio és bejelentkezett
+Disney+ / HBO Max / YouTube DRM-lejátszás itt nem futott.
+Ezekhez valódi Windowsos próba szükséges; minden gép és szolgáltatás hibátlan
+működését az automatizált tesztek nem igazolják. A panel nem szünetelteti
+magától a játékot. Ablak nélküli teljes képernyő ajánlott; exkluzív vagy
+védett játék fölött a panel megjelenése korlátozott lehet.
+
+A Disney+ / HBO fekete kép oka és megszűnése ezen a gépen nem lett igazolva.
+A módosítás kompatibilitási javítás, nem a DRM-védelem megváltoztatása.

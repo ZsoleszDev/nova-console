@@ -1,0 +1,29 @@
+NOVA – third-party notices
+
+Electron: MIT License. Copyright Electron contributors.
+The Electron LICENSE and LICENSES.chromium.html accompany the Windows runtime.
+
+React / React DOM: MIT License. Copyright Meta Platforms, Inc. and affiliates.
+https://github.com/facebook/react/blob/main/LICENSE
+
+Lucide icons: ISC License. Copyright Lucide Contributors.
+https://github.com/lucide-icons/lucide/blob/main/LICENSE
+
+Inter font: SIL Open Font License 1.1. Copyright The Inter Project Authors.
+https://github.com/rsms/inter/blob/master/LICENSE.txt
+
+Game artwork: promotional images delivered by the public Steam CDN.
+Forza Horizon 5, Halo Infinite, Sea of Thieves, Ori and the Will of the Wisps,
+and Microsoft Flight Simulator artwork and game names belong to their respective
+owners, including Microsoft / Xbox Game Studios, Playground Games, 343 Industries,
+Rare, Moon Studios and Asobo Studio. Images are used as discovery illustrations;
+this software makes no ownership claim and is not affiliated with these companies.
+Bundled source URLs:
+https://cdn.akamai.steamstatic.com/steam/apps/1551360/library_hero.jpg
+https://cdn.akamai.steamstatic.com/steam/apps/1551360/library_600x900_2x.jpg
+https://cdn.akamai.steamstatic.com/steam/apps/1240440/library_600x900_2x.jpg
+https://cdn.akamai.steamstatic.com/steam/apps/1172620/library_600x900_2x.jpg
+https://cdn.akamai.steamstatic.com/steam/apps/1057090/library_600x900_2x.jpg
+https://cdn.akamai.steamstatic.com/steam/apps/1250410/library_600x900_2x.jpg
+
+NOVA is an independent project and is not an official Microsoft or Xbox product.

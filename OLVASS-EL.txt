@@ -1,0 +1,386 @@
+﻿NOVA 1.10.2 – VISSZATÉRÉS JÁTÉKBÓL
+
+A felismert, NOVA-ból indított játék bezárásakor automatikusan visszatér a NOVA. Ez konzol módban és akkor is működik, ha induláskor a NOVA magát tette a tálcára. A játékidőmérés külön kapcsolható. A Windows módra váltás lemondja az aktuális játék utáni visszahívást.
+
+ÚJ AZ 1.10.1 VERZIÓBAN
+
+A Médiatár tetején a Mappa hozzáadása gomb nyitja meg a mappafelvételt. A gyűjtemény neve és típusa megadható a Mappa kiválasztása előtt. A teljes mappaútvonalat az Útvonal megadása gombbal kézzel is beírhatod vagy beillesztheted. Név nélkül a kiválasztott mappa neve jelenik meg. Felvételkor a NOVA beolvassa az új mappát és megnyitja a gyűjteményt. A lista utolsó sora alatt több hely marad a láblécig.
+
+A kezdőlapon és a Játéktárban a kijelölt játék finoman kiemelkedik. A játék címe az adatpanel tetején látható, alatta az utolsó indítás ideje, az összes mért játékidő és a legutóbbi mért alkalom hossza.
+
+A kezdőlapi és streamingcsempék borítói arányosan kitöltik a négyzetet. Álló vagy fekvő képnél a kilógó széleket a NOVA levágja. A négyzetek alapmérete azonos, és mindig a kijelölt csempe emelkedik ki animáltan.
+
+A Médiatárban a Streaming részről indítható az HBO Max, Disney+, YouTube és Spotify. A Vegyes média gyűjtemény videót, zenét és képet fogad. A Filmek és Sorozatok típus a videók rendezésére használható.
+
+A lejátszó csak a hozzáadott mappák nyilvántartott médiafájljait, illetve a mellettük található feliratokat nyitja meg. A NOVA nem követ más mappára mutató linket. A mappa eltávolítása megszünteti a médiatár hozzáférését, a forrásfájlok megmaradnak a meghajtón.
+
+A kezdőlapról kikerült a Fájlok és a külön Keresés menü, valamint a Microsoft Store összes ajánlása. A Játéktár és a Médiatár saját szűrési lehetőségei megmaradtak. A Microsoft Store kézzel a Játék hozzáadása menüből nyitható meg.
+
+
+Az automatikus billentyűzet az HBO Max és a Disney+ felismert webes mezőiben is működhet, ha a Virtuális billentyűzet be van kapcsolva. Ha az Edge nem jelzi szerkeszthetőként a mezőt, kattints bele és nyomj X-et. A NOVA saját Edge-profilja bekapcsolt webes akadálymentességi támogatással indul.
+
+A médiából visszatérve a NOVA újra beállítja a kijelölést és a kontroller bemenetét, késői médiapanel-jelzés nélkül. Ha a konzolsegéd a visszatérés után nem válaszol, a NOVA újraindítja. A NOVA menüi, gombjai és paneljei fekete, fehér és szürke árnyalatúak. A borítók, háttérképek és alkalmazásjelzések színesek. A saját médiatár és a helyi lejátszó háttere egyszínű szürke.
+
+
+ÚJ AZ 1.9-BEN
+
+SAJÁT MÉDIATÁR
+A felső Médiatár ikon nyitja meg.
+Adj hozzá Filmes vagy Sorozatos mappát. A sorozatok legyenek külön almappákban,
+például Sorozatok/Kaland/Season 1/Kaland.S01E02.mp4. S01E02 és 1x02 jelölés,
+valamint Season 2 / 2. évad mappanév alapján felismeri az évadot és részt.
+A borítót a cím megnyitása után választhatod ki a gépedről; nincs online
+adatbázis vagy automatikus internetes borítóletöltés.
+A: megnyitás. B: vissza a sorozatokhoz, illetve a mappaeltávolítás visszavonása.
+Y: médiatár-keresés képernyő-billentyűzettel. A részek külön megtekintettnek
+jelölhetők, a lejátszás végén automatikusan is jelölődnek. A folytatási hely
+mentődik. A következő rész a médiatárból indítva évadmappák között is működik.
+A Frissítés újra beolvassa a forrásokat. Nem elérhető meghajtó elemei megmaradnak,
+de nem indíthatók; csatlakoztatás után frissíts. Módosított fájlnál is frissíts.
+A Mappák > Eltávolítás a tárból csak a katalógusból vesz ki; a videókat nem törli.
+A katalógus és megtekintési adatok helyben, media-library.json alatt tárolódnak.
+Egy beolvasás legfeljebb 30 000 fájl/mappa bejegyzést és 10 mappaszintet jár be;
+szimbolikus linkeket nem követ. A formátumtámogatás a meglévő lejátszóé.
+
+ÓRÁS KÉPERNYŐVÉDŐ
+Beállítások > Órás képernyővédő és Képernyővédő várakozása. Alapból bekapcsolt,
+5 perc; választható 1, 3, 5, 10, 15, 30 perc, és teljesen kikapcsolható.
+Futó NOVA mellett az összes kijelzőn sötét háttéren csak az idő jelenik meg.
+A Windows egér/billentyűzet-aktivitása és az Xbox-kontrollerek gombjai, karjai,
+ravaszai is számítanak; a beállított holtjáték alatti karzaj nem ébreszt.
+Játék közben is megjelenhet. Nem altatja a gépet, nem zárol és nem szünetelteti
+a játékot; az ébresztő bemenet a játékhoz is eljuthat. Az ablak nem vesz fókuszt.
+Exkluzív teljes képernyős vagy védett játék fölött a megjelenés Windows-függő;
+ablak nélküli teljes képernyő ajánlott. A funkció nem módosítja a Windows
+saját képernyőkikapcsolási vagy alvási időzítőit.
+Megnyitott Disney+, HBO, YouTube, Spotify vagy helyi média esetén SOHA nem
+jelenik meg, szüneteltetve sem. Ez a NOVA-ból megnyitott médiára vonatkozik;
+külön indított böngésző/videólejátszó tartalmát a NOVA nem ismeri fel.
+Hiányzó vagy elakadt kontrollerfigyelés esetén nem takar ki bizonytalanul.
+
+ÉBREDÉS ÉS VISSZAJELZÉSEK
+Alvás/zárolás után az inaktivitási idő újraindul, a kontrollerfigyelés
+újraellenőrződik; hibás segéd újraindítható és a játék cél alapján újrakereshető.
+A kijelzőről lekerült NOVA-ablak visszahelyeződik. Megőrzi a kijelölést,
+és nem hozza kéretlenül előtérbe a NOVA-t a játék fölé.
+Indulóanimáció: rövid, kikapcsolható NOVA nyitókép, csökkentett mozgás tiszteletével.
+Finom kontrollerrezgés: alapból kikapcsolt; a NOVA menüjében és játékpanelében
+rövid visszajelzést ad, játék közben nem küld NOVA-rezgést.
+Kontrollermerülési értesítés: alapból bekapcsolt, ha a kontroller jelent
+akkumulátorállapotot. Nem ismétlődik folyamatosan. Csendes értesítések játék
+közben: alapból bekapcsolt, a NOVA-ba visszatéréskor jelenik meg az üzenet.
+Kikapcsolva néma Windows-értesítés használható; megjelenése a Windows
+értesítési beállításaitól függ. Más alkalmazások értesítéseit nem változtatja.
+Javítva: a telepített app már valóban menti a menühangerő és animáció beállítását.
+
+
+ÚJ AZ 1.8-BAN
+– Folytatás központ a kezdőlapon: visszaváltás a követett futó játékra,
+  legutóbbi játékok indítása, félbehagyott helyi videó/zene folytatása.
+  A végignézett videónál a következő rész indítható, természetes fájlnévsorrendben.
+– A főmenü megjegyzi a kijelölt elemet a lapok közötti váltáskor.
+  X: kijelölt saját játék lehetőségei, másutt gyorsmenü. A billentyűzeten
+  továbbra is X a törlés, Y a kis-/nagybetű; a súgó követi a nézetet.
+– Játékpanel: Játék bezárása külön megerősítéssel, alapból Mégse kijelöléssel;
+  B először a megerősítést zárja be. Alvó mód Windowsos megerősítéssel.
+  A bezárás normál ablakbezárási kérést küld csak a követett játékhoz;
+  a játék további megerősítést kérhet vagy figyelmen kívül hagyhatja.
+  Nincs kényszerített leállítás vagy a konzolokéhoz hasonló Quick Resume.
+– A folytatási előzmények a fájl elérési útját is helyben, az AppData
+  local-media.json fájljában tárolják. A központ a frissítés után megnyitott
+  és mentett helyi médiaadataiból épül fel; a régi mentett lejátszási helyek
+  a fájlkezelőből megnyitva továbbra is használhatók. Hiányzó vagy módosult
+  fájlt nyiss meg újra a fájlkezelőből. Másolás/áthelyezés nem automatikus.
+
+Windows 10 / 11 x64
+
+ÚJ: LÁGYABB MENÜHANGOK ÉS ANIMÁCIÓK
+Beállítások > Menühangok: ki/be; Menühangok hangereje: Halk / Lágy / Teltebb.
+Beállítások > Menüanimációk: lágy háttérváltás, csempekiemelés, lassú fények.
+A rendszer csökkentett mozgás beállítását követi. Nincs folyamatos háttérzene.
+A fényanimáció szünetel, amikor a NOVA a háttérbe kerül.
+
+VISSZA A NOVA-BA = MÉDIA BEZÁRÁSA
+Y / Menü csak a panelt nyitja meg, a filmet nem zárja be.
+A Vissza a NOVA-ba gomb vagy View megnyomása bezárja a NOVA saját Edge-ablakait.
+A médiás mentővisszatérés is bezárást kér. A személyes Edge-ablakaid megmaradnak.
+Új média indítása megvárja a bezárás eredményét; a bejelentkezések megmaradnak.
+Ha a bezárást nem sikerül igazolni, a NOVA külön jelzi. Ilyenkor a böngésző
+még futhat: a médiamenüben próbáld újra a Média bezárása műveletet.
+
+ÚJ: JOBBAN KEZELHETŐ MÉDIAMENÜ
+Menü / Y: panel. Bal kar megnyomása (L3): három vezérlési mód váltása.
+1. Egérmutató: bal kar mozgatás, D-pad finom mozgatás, A kattintás / húzás.
+2. Gombok között: irányokkal előző / következő Tab-cél, A: Enter.
+3. Nyílgombok: iránygombos listák és lejátszómenük, A: Enter.
+Jobb kar megnyomása (R3): mutató középre és vissza egérmódba.
+Menü > Mutató sebessége: Lassú / Normál / Gyors.
+B a böngészőben: Escape (felugró menü bezárása). LB: előző oldal. RB: előre.
+Menü > Szóköz / jelölőnégyzet: Space. X: billentyűzet. View: NOVA.
+A mód és sebesség a NOVA bezárásáig megmarad, szolgáltatásváltáskor is.
+A gombok és nyilak működése a webhely billentyűzetes támogatásától függ;
+ha nem jut el a kívánt elemhez, R3-mal térj vissza egérmódba.
+A helyi lejátszó tartalék kontrolleres iránykezelése is javítva.
+
+BELSŐ STREAMINGALKALMAZÁSOK
+Ebben a kiadásban Disney+, HBO Max és YouTube továbbra is a telepített Edge-et
+használja, saját NOVA-vezérlővel. A belső webnézet nem garantál védett filmlejátszást.
+A Disney+ és HBO fekete képének megszűnése még nincs igazolva a saját gépeden.
+
+TELEPÍTÉS VAGY FRISSÍTÉS
+1. Zárd be a NOVA-ból megnyitott Edge-ablakokat, majd a NOVA-t is a Gyorsmenü > Kilépés ponttal.
+2. A ZIP teljes tartalmát csomagold ki egy mappába.
+3. A kicsomagolt mappából futtasd a Telepites.cmd fájlt.
+4. Indítsd a NOVA asztali vagy Start menüs parancsikonját.
+A telepítő a korábbi hivatalos NOVA telepítési helyét használja:
+%LOCALAPPDATA%\Programs\NOVA. Az előző telepítőt használva a futtatókörnyezet
+újrahasználható; új telepítéskor kb. 150 MB internetes letöltés szükséges.
+A játéktár és a beállítások a külön %APPDATA%\NOVA mappában maradnak.
+A telepítő rendszergazdai jog nélkül működik; a futó alkalmazást nem zárja be helyetted.
+A mellékelt, olvasható PowerShell-szkript egyszeri végrehajtási engedéllyel fut;
+a gép állandó végrehajtási házirendjét nem módosítja.
+
+FILM MÓD AZ 1.6.1-BEN
+Disney+ / HBO: az Edge előtérbe hozása után a NOVA főablaka elrejtődik.
+A NOVA futva marad, de nincs áttetsző súgóablaka a film fölött.
+A felismert mezőkben film módban is megnyílik a virtuális billentyűzet.
+Ha nem nyílik meg, kattints a mezőbe és nyomj X-et.
+Menü / Y: médiapanel. View: NOVA. Tartalék: View + Menü 1 mp, vagy Ctrl+Alt+N.
+A visszatérés újra megmutatja a NOVA-t. A profilod és a bejelentkezéseid megmaradnak.
+A film mód kompatibilitási javítás; a fekete kép tényleges oka nincs igazolva.
+Ha továbbra is fekete: ugyanazt a filmet a szokásos Edge-ben, bezárt NOVA-val próbáld.
+A médiapanel Fekete a film? pontjából az Edge-frissítés, Védett tartalom és
+Videogyorsítás beállításait nyithatod meg. A beállítások a NOVA Edge-profiljára
+vonatkoznak. A védett lejátszást engedélyezni kell; a gyorsítást módosítás után
+Edge-újraindítással lehet ellenőrizni. A NOVA ezeket nem írja át automatikusan.
+TV / külső kijelző esetén a kábel, adapter és kijelző HDCP-támogatását is ellenőrizd.
+Hivatalos súgó: https://learn.microsoft.com/en-us/troubleshoot/microsoft-edge/development/video-playback-issues
+
+ÚJ AZ 1.6-BAN: KÜLÖN BORÍTÓK ÉS HÁTTEREK
+Médiatár > Borítók és hátterek a streamingcsempékhez.
+Beállítások > Játékok képei a játékcsempékhez.
+Válassz alkalmazást, majd külön Borítókép választása / Háttérkép választása.
+A YouTube, Disney+, HBO Max, Spotify és minden saját játék / alkalmazás képei
+állíthatók. A játék részleteinél a Borító és háttér gomb is ide vezet.
+Mindkét kép külön állítható vissza. A borító a csempén, a háttér a kijelöléskor látszik.
+A régi borítóid megmaradnak; egy kis borító már nem lesz teljes képernyős háttér.
+Háttérhez fekvő 16:9 képet válassz: 1920×1080 vagy 3840×2160 ajánlott.
+A NOVA nem nagyítja fel a kis képeket; a képarány és a borító átlátszósága megmarad.
+Az eredeti képfájl változatlan, a másolat az AppData NOVA artwork mappájába kerül.
+
+KÖVETKEZŐ RÉSZ A HELYI LEJÁTSZÓBAN
+A videó utolsó percében diszkrét gomb jelenik meg jobb alul a következő fájl nevével.
+Négy percnél rövidebb videónál az utolsó negyedben jelenik meg.
+Rejtett vezérlőknél D-pad fel, majd A: következő rész lejátszása.
+Látható vezérlőknél a gomb a szokásos navigációval vagy egérrel is kiválasztható.
+A lejátszás az aktuális mappa következő videójával folytatódik, a fájlnevek
+természetes sorrendjében: például 1, 2, 10. Képeket és más fájlokat átugrik.
+A gomb megjelenése nem veszi el a kijelölést, a váltást te indítod.
+Az utolsó videónál nincs további gomb, a lista nem fordul vissza az elejére.
+
+BÖNGÉSZŐ ELŐTÉRBE HOZÁSA AZ 1.5.2-BEN
+A Disney+, HBO Max, YouTube vagy Spotify csempéje után a NOVA megvárja a
+böngészőablakot, és automatikusan előtérbe hozza. A médiapanel az átadás előtt
+eltűnik. A Windowsos segéd visszajelzi az eredményt; sikertelenségnél a panel
+újrapróbálást és visszatérést ad. Nem kell a böngészőt a NOVA mögött keresni.
+View: vissza a NOVA-ba, View + Menü 1 másodpercig / Ctrl+Alt+N: tartalék visszahívás.
+Ha visszatérsz a NOVA-ba vagy más alkalmazásra váltasz, az elavult ablakváltás
+megszakad. Gyors szolgáltatásváltás ugyanazt a böngészőt használja újra.
+Ha nem sikerült az átadás, a Folytatás a böngészőben gombbal újrapróbálhatod.
+
+MEGHAJTÓK JAVÍTÁSA AZ 1.5.1-BEN
+A Fájlkezelő csempe most a meghajtók és mappák áttekintésével indul.
+A Windowsban betűjellel elérhető belső, USB- és csatlakoztatott hálózati
+meghajtók a lista elején láthatók; D-pad / bal kar és A: kiválasztás / megnyitás.
+A Meghajtók gomb visszavisz az áttekintéshez. Meghajtók frissítése: újra lekéri
+a listát, például egy USB-lemez csatlakoztatása után, újraindítás nélkül.
+Javítottuk a Windows alapbeállítása mellett sikertelen meghajtólistázást.
+Ha a lekérés mégsem sikerül, a hiányos listát külön üzenet jelzi; a saját
+mappák továbbra is használhatók. A Windows állandó szkript-házirendje nem változik.
+
+ÚJ AZ 1.5-BEN
+– Beépített, kontrolleres fájlböngésző és helyi videó-, hang- és képnézegető.
+– HBO Max a kezdőlapon és a Média menüben, a Disney+, YouTube és Spotify mellett.
+– A Disney+ vezérlője az Edge profilablakát követi, nem az indítófolyamat PID-jét.
+– A mezőfelismerés külön szálon fut; elakadása nem blokkolja a kontrollervezérlést.
+– D-pad és bal kar: egérmutató a médiaböngészőben. A: kattintás a filmkártyára.
+– View: NOVA. View + Menü 1 másodpercig vagy Ctrl+Alt+N: független tartalék visszahívás.
+– Áttetsző vezérlési súgó és médiapanelen kapcsolódási állapot / újracsatlakoztatás.
+
+FÁJLOK ÉS HELYI LEJÁTSZÓ
+Korábbi verziók fájlkezelője és meghajtónézete. Az 1.10.0 óta a Médiatár váltja fel.
+D-pad / bal kar: léptetés. A: mappa vagy média megnyitása. B: előző mappaszint;
+aktív keresésnél előbb a keresést törli. LB/RB: mappatörténet. Y: keresőbillentyűzet.
+A szűrők az aktuális mappa tartalmát mutatják; a keresés is erre a mappára vonatkozik.
+A böngésző csak olvas: fájlt nem töröl, nem mozgat, programot nem indít.
+Helyi lejátszó: A a kijelölt vezérlő, rejtett gomboknál lejátszás / szünet.
+LB/RB: −10 / +10 másodperc. X: némítás. Y: feliratválasztás. Menü: vezérlők.
+B: vissza a mappába. View: NOVA kezdőlap. A lejátszás helye helyben mentődik.
+SRT vagy VTT feliratot a videóval azonos mappába tegyél, majd Y-nal válaszd ki.
+MP4 H.264/AAC és WebM lejátszása ellenőrizve. Más konténer / kodek támogatása
+az Electron dekóderétől függ; például nem minden MKV, AVI vagy hangsáv játszható le.
+Nem támogatott fájlnál hibaüzenetből B-vel visszatérhetsz a listához.
+
+ÚJ AZ 1.4-BEN
+– Külön, kisebb játékpanel a futó játékhoz, visszatéréssel és hangerővel.
+– Játékonkénti idő és alkalmak: kezdőlap > Játékidő, vagy Játéktár > Játékidő.
+– Natív kontrolleres főmenü, kontrollerpróba, állítható holtjáték és léptetés.
+– Finomított, sötétebb, egységesebb felület; kontrollerrel választható hátterek.
+– Javított színválasztás és billentyűzetsorok közötti navigáció.
+
+JÁTÉKPANEL
+Kapcsold be a Beállítások > Konzol mód és Játék közbeni panel lehetőséget.
+Játék közben View + Menü együtt 1 másodpercig, vagy Ctrl+Alt+N: játékpanel.
+A View a két téglalapos, a Menü a három vonalas gomb az Xbox gomb két oldalán.
+D-pad / bal kar: léptetés. A: választás. B vagy Menü: vissza a játékhoz.
+View a panelen: NOVA főmenü. A visszatérés nem indít új játékpéldányt.
+A panel a játék kijelzőjének bal szélén nyílik meg, fókuszt kap és görgethető.
+Hangerő és némítás: a Windows alapértelmezett hangkimenetének rendszerhangját állítja.
+A panel nem szünetelteti automatikusan a játékot; a játék a háttérben tovább futhat.
+Egyes játékok háttérben is figyelik a kontrollert: a panel előtt érdemes szüneteltetni.
+Ablak nélküli teljes képernyő ajánlott. Exkluzív teljes képernyőn a Windows válthat
+ablakot; védett játék fölött nem minden esetben jeleníthető meg. Nincs játékba
+injektált overlay vagy anti-cheat megkerülés. A Játék közbeni panel kikapcsolásakor
+a kombináció a korábbi teljes NOVA menüt hívja vissza.
+A játékpanel kezdőlapi gombja futó játék nélkül egy biztonságos felületi előnézetet nyit.
+
+JÁTÉKIDŐ
+A mérés alapból bekapcsolt; Beállítások > Játékidőmérés alatt kikapcsolható.
+Csak a NOVA-ból indított, felismert játék előtérben töltött ideje mérhető.
+Alt+Tab, a NOVA menüje, zárolás és alvás közben szünetel. Az indítóra várakozás
+nem számít. A játék saját menüje vagy tétlenség viszont igen, ha a játék van előtérben.
+A legutóbb indított játékot követi; több párhuzamos játék idejét nem összesíti.
+15 másodpercenként és az alkalom végén ment. Megszakadás után csak a már mentett
+idő marad meg. A régi indításokból nem talál ki utólagos időket. Egyedi vagy nem
+felismerhető indítóknál a mérés nem érhető el; ezt a felület jelzi.
+A Játékidő nézet összesített és játékonkénti időt, valamint legutóbbi alkalmakat mutat.
+A számláló a NOVA adatai között, helyben tárolódik. A korábbi profiladatok megmaradnak.
+
+PONTOSABB KONTROLLER
+Beállítások > Profil és vezérlés > Kontrollerpróba: gombok és bal kar élő kijelzése.
+A holtjátékot emeld, ha a kijelölés magától mozdul; a léptetési sebesség is állítható.
+A billentyűzet sorának szélén balra / jobbra lépve a sor másik szélére jutsz.
+A NOVA saját Windows párbeszédablakaiban D-pad: nyilak, A: Enter, B/Menü: Escape,
+LB/RB: Shift+Tab/Tab. A natív fájlválasztónál ezekkel válthatsz a mezők és a lista között.
+A médiamappák a beépített fájlböngészőben nyílnak meg. A külön megnyitott
+Microsoft Store saját kezelőfelületén egérre vagy billentyűzetre is szükség lehet.
+
+KORÁBBI SERIES FŐMENÜ
+Az Xbox Series főmenüjének elrendezését követő kezdőlap: felső profil és ikonok,
+nyitott háttér, alsó négyzetes játék- és médiacsempék, széles funkciócsempék,
+fehér kijelölőkeret és balról megnyíló gyorsmenü. A saját játék csempéje indít;
+az ÁRUHÁZ címkés játékajánlat külön megvásárolható / telepíthető.
+A médiabillentyűzetet már a Windowsos kontrollersegéd vezérli, nem függ attól,
+hogy az előugró ablakban a böngésző érzékeli-e a kontrollert.
+View: közvetlen visszatérés a NOVA-ba, a billentyűzetről és a médiapanelről is.
+Menü: médiaböngészőből vagy billentyűzetről médiamenü; a panelről folytatás.
+A billentyűzet tetején NOVA és Médiamenü gomb is van. Ez konzol mód nélkül is működik.
+A billentyűzet elhagyásakor a vázlat törlődik, és nem küldi el a mezőbe.
+
+KONZOL MÓD
+Beállítások > Konzol mód, vagy Gyorsmenü > Konzol mód kapcsoló.
+Alapból kikapcsolt, így a frissítés nem váltja át a gépet a döntésed nélkül.
+Bekapcsolva a NOVA teljes képernyőn, tálcára helyezés nélkül marad a játék mögött.
+A Teljes képernyő és Játékindításkor tálcára kapcsoló ilyenkor nem írhatja felül.
+A játéké az előtér; a NOVA nem kap állandóan legfelül megjelenő ablakot.
+A felismert játék bezárásakor a főmenü visszatér. Ha közben másik alkalmazásban
+vagy, azt nem szakítja félbe. A figyelés az utoljára a NOVA-ból indított játékot követi.
+Közvetlen .exe folyamat és leszármazottai, Steam-futásjelzés / telepítési hely,
+valamint felismert Windows-alkalmazásablak alapján működik. A .lnk és Steam .url
+parancsikonok célját is megpróbálja feloldani. Egyedi indítóprogramok, szolgáltatásból
+indított játékok vagy nem azonosítható ablakok esetén az automatikus visszatérés
+nem mindig elérhető; a NOVA ilyenkor is a háttérben marad.
+
+Visszahívás játék közben: Ctrl+Alt+N, vagy View + Menü együttesen 1 másodpercig
+(Xbox / XInput-kompatibilis kontroller). A Gyorsmenüből a felismert játék ablakához
+vissza is válthatsz; ez nem indít új játékpéldányt és nem állítja le a futó játékot.
+Ha a billentyűkombinációt más program foglalja, a NOVA a tálca értesítési területén
+lévő ikonjának dupla kattintásával is visszahívható. A tálcamenüben a módváltás és
+az alkalmazásból kilépés is elérhető.
+Windows mód: a Gyorsmenü Windows módra váltás gombja vagy a főoldali Windows mód.
+Kikapcsolja a konzol módot, feloldja a globális gyorsbillentyűt, majd a NOVA-t
+tálcára teszi. A külön bekapcsolt játékidőmérés a NOVA-ból indított játékot tovább
+követheti; a saját ablak natív vezérlője is megmarad, de nem vezérli az asztalt. A korábbi normál megjelenési és játékindítási beállítás megmarad.
+A Beállítások kapcsolójával kikapcsolva az alkalmazás a beállított normál megjelenésre
+vált. Az F11-gyel történő teljesképernyő-kikapcsolás a konzol módot is kikapcsolja.
+A Windows rendszerhéját nem cseréli le, az Explorert nem állítja le, és a Windows
+saját Alt+Tab / Ctrl+Alt+Delete lehetőségeit nem blokkolja. Az alkalmazásból rendesen
+ki lehet lépni; az állandó háttér csak futó NOVA-ra értendő. A Windowszal együtt indulás
+külön kapcsolható, ahogy eddig is. A játékokhoz nem injektál vezérlést vagy kódot.
+
+KORÁBBI MÉDIÁS ÚJDONSÁGOK AZ 1.1-BEN
+– Disney+, YouTube és Spotify kártya a Média menüben.
+– Teljes képernyős Microsoft Edge, külön NOVA médiaprofillal.
+– Kontrolleres egér, görgetés, böngészési előzmények, vezérlőpanel.
+– Magyar QWERTZ képernyő-billentyűzet, ékezetek, számok, jelek, nagybetűk.
+– Automatikus billentyűzet a felismert kereső-, szöveg- és jelszómezőknél.
+– A NOVA saját keresőjéhez, profilnevéhez és átnevezési mezőihez is használható.
+
+MÉDIABÖNGÉSZŐ
+Naprakész Microsoft Edge és Xbox / XInput-kompatibilis kontroller szükséges.
+A Disney+ és a többi szolgáltatás saját bejelentkezést, előfizetést kérhet.
+A szolgáltatások a valódi Edge-ben futnak, így annak DRM-támogatását használják.
+A NOVA nem tartalmaz Widevine-ot, és nem kerüli meg a szolgáltatások védelmét.
+A külön böngészőprofil a %APPDATA%\NOVA\media-profile mappában tárolódik.
+Az Edge kezeli a bejelentkezéseket és sütiket. A normál böngészőprofilod külön marad.
+A médiaböngészőt normál felhasználóként indítsd, ne rendszergazdaként.
+
+KONTROLLER A MÉDIABÖNGÉSZŐBEN
+Egérmódban bal kar: mutató mozgatása; D-pad: finom mozgatás.
+Bal kar megnyomása: gombok közötti / nyílgombos / egérmód.
+A: kattintás. Nyomva tartva és a bal kart mozgatva: húzás.
+Jobb kar, LT / RT: görgetés.
+B: Escape / felugró menü bezárása. LB: előző oldal. RB: előre.
+X: billentyűzet a kiválasztott kereső- vagy szövegmezőhöz.
+Menü / Y: NOVA médiavezérlő panel. View: vissza a NOVA főablakába.
+Ha a View nem reagál: View + Menü együtt 1 másodpercig, vagy Ctrl+Alt+N.
+A médiás tartalék visszahívás kikapcsolt konzol módban is aktív, amíg a médiát vezérled.
+A médiapanel Újracsatlakoztatás gombja újraindítja az aktuális szolgáltatás vezérlését.
+A panelen elérhető a frissítés, teljes képernyő, lejátszás / szünet, ablakbezárás.
+A vezérlő csak a NOVA által indított Edge-profil előtérben lévő ablakait kezeli.
+Másik alkalmazásra váltva nem küld oda egér- vagy billentyűeseményeket.
+A NOVA bezárásakor a kontrollersegéd leáll. A megnyitott Edge egérrel használható marad.
+
+KÉPERNYŐ-BILLENTYŰZET
+D-pad vagy bal kar: kijelölés mozgatása. A: betű / kijelölt gomb.
+B: mégse. X: visszatörlés. Y: nagybetű.
+Médiabillentyűzeten View: NOVA. Menü: médiamenü.
+A View az Xbox gombtól balra lévő két téglalapos gomb; a Menü a jobb oldali három vonalas gomb.
+A képernyőn külön jelek, szóköz, kurzormozgatás és törlés is elérhető.
+A NOVA fejlécében a billentyűzet ikon egérrel is megnyitja a billentyűzetet.
+Kontroller használatakor a NOVA szövegmezőire lépve automatikusan megjelenik.
+A Beállítások > Virtuális billentyűzet kapcsolóval az automatikus felugrás kikapcsolható.
+A böngészőben kattints egy mezőre A-val. Felismert szerkeszthető mező esetén a
+billentyűzet automatikusan megjelenik; kézzel az X-szel is kérheted.
+Ha egy webhely mezőjét a Windows nem teszi elérhetővé, az automatikus felismerés
+nem működik. Ilyenkor A-val kattints a mezőre, majd X-szel nyiss kézi billentyűzetet.
+Az ismeretlen mezőhöz a vázlat alapból maszkolt; a Szöveg mutatása gombbal felfedhető.
+A szöveg az eredeti, ellenőrzött Edge-ablak aktív mezőjébe kerül; az ablakváltás
+megszakítja a gépelést. A mezőfelismerés hibája mellett is használható a kézi X.
+Ha a webhely nem fogadja az eseményeket, fizikai billentyűzettel is próbálható.
+Beírás: a szöveget a kiválasztott mezőbe írja. Beírás + Enter: utána Entert is küld.
+A Korábbi szöveg cseréje jelölőnégyzet bekapcsolva lecseréli a mező szövegét;
+kikapcsolva a mező aktuális beszúrási pontjához ír.
+A NOVA nem olvassa ki a böngészőmező meglévő értékét. Jelszómezőnél a saját
+beviteli mező is maszkolt. A vázlat nincs naplózva vagy tartósan mentve;
+bezárás vagy elküldés után törlődik a billentyűzet nézetéből.
+
+A TÖBBI NOVA-FUNKCIÓ
+Saját .exe, .lnk vagy .url játékparancsikonok; Steam-import; telepített Windows-appok.
+Játéktár, kedvencek, keresés, borítóképek, indítási előzmények; játékonkénti időmérés és alkalmak.
+Microsoft Store: a vásárlást és telepítést az Áruház végzi.
+Windows-beállítások és energiagazdálkodás natív megerősítéssel.
+Beállítások > Induljon a Windowszal: bejelentkezéskor teljes képernyős indulás.
+F11: teljes képernyő; Esc: vissza / gyorsmenü; Alt+Tab: váltás a Windowsra.
+A NOVA konzolos indítófelület, nem Xbox-emulátor; nincs saját Xbox Live chat vagy barátlista.
+A játékokat és az előfizetéseket külön kell beszerezni.
+
+ELLENŐRZÉS ÉS KORLÁTOK
+A felületet, a billentyűzetet és a natív üzenetváltást automatizált tesztek ellenőrzik.
+A Windowsos C# kontrollersegéd .NET Framework 4.8 / C# 5 fordításellenőrzést kapott.
+Valódi Windows-gépes, fizikai kontrolleres és bejelentkezett Disney+ / HBO Max / YouTube
+végponttól végpontig próba ebben a Linuxos környezetben nem futott.
+A szolgáltatások lejátszását, bejelentkezését és a mezőfelismerést saját gépeden kell
+kipróbálni; a szolgáltatói oldalak későbbi változásai befolyásolhatják a kezelést.
+A forrás és a Windowsos segéd olvasható a csomag app\electron mappájában.
+Független projekt; nem Microsoft-, Xbox-, Disney- vagy YouTube-termék.
