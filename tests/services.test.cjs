@@ -278,3 +278,15 @@ test("outside Windows nothing is touched", async () => {
   await assert.rejects(s.stopOllama(), /Windowsos/);
   assert.equal(runner.calls.length, 0);
 });
+
+test("sign-in age comes from the session's shell start time", async () => {
+  const runner = fakeRun({ "powershell.exe": () => ({ stdout: "1000000" }) });
+  const s = services({ fs: fakeFs(), run: runner.run, now: () => 1090000 });
+  assert.equal(await s.sessionAge(), 90000);
+  assert.ok(!runner.calls[0].args.at(-1).includes('"'), "no double quotes in -Command");
+  const broken = services({ fs: fakeFs(), run: fakeRun({ "powershell.exe": () => { throw Error("x"); } }).run });
+  assert.equal(await broken.sessionAge(), null);
+  const empty = services({ fs: fakeFs(), run: fakeRun({ "powershell.exe": () => ({ stdout: "" }) }).run });
+  assert.equal(await empty.sessionAge(), null);
+  assert.equal(await createServices({ platform: "linux", env: {} }).sessionAge(), null);
+});

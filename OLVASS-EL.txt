@@ -1,4 +1,21 @@
-﻿NOVA 1.11.0 – MÓDVÁLASZTÓ: KONZOL, JARVIS, WINDOWS
+﻿NOVA 1.11.1 – A MÓDVÁLASZTÓ MINDEN BEJELENTKEZÉSKOR MEGJELENIK
+
+Javítva: a módválasztó csak akkor jelent meg, ha a NOVA a saját automatikus
+indításával (--startup kapcsolóval) indult, különben a konzol fogadott. Most
+akkor is megjelenik, ha a NOVA a bejelentkezés utáni 4 percen belül bármilyen
+más módon indul: Indítópult-parancsikonnal, Feladatütemezővel, vagy ha a
+Windows nyitja meg újra. Amíg ez eldől (néhány másodperc), a NOVA főablaka
+rejtve marad. Ha a bejelentkezés utáni 4 percen belül kézzel indítod a NOVA-t,
+akkor is a módválasztó fogad.
+Konzol módban a Gyorsmenü Teljes képernyő váltása pontja is a módválasztót
+nyitja meg, nem lép ki a konzol módból. Amíg a módválasztó látszik, a konzol
+mód asztalvédelme szünetel.
+Indulási napló: %APPDATA%\NOVA\modvalaszto-naplo.txt. Minden indításnál egy
+sor: milyen kapcsolóval indult a NOVA, mennyi idővel a bejelentkezés után, és
+mi jelent meg.
+
+
+NOVA 1.11.0 – MÓDVÁLASZTÓ: KONZOL, JARVIS, WINDOWS
 
 Bejelentkezéskor a NOVA egy teljes képernyős módválasztóval indul. Egérrel,
 billentyűzettel és kontrollerrel is kezelhető. A választás azonnal érvénybe lép.

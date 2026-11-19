@@ -71,6 +71,22 @@ let win,
   updateSettings;
 const isWindows = process.platform === "win32";
 const pending = new Set();
+// A NOVA start this soon after sign-in counts as a sign-in start, however it was launched.
+const SIGN_IN_WINDOW_MS = 4 * 60 * 1000;
+function startupLog(text) {
+  try {
+    const file = path.join(app.getPath("userData"), "modvalaszto-naplo.txt");
+    try {
+      if (fs.statSync(file).size > 65536)
+        fs.renameSync(file, file.replace(/\.txt$/, ".regi.txt"));
+    } catch {}
+    fs.appendFileSync(
+      file,
+      `${new Date().toLocaleString("hu-HU")}  NOVA ${app.getVersion()}  ${text}\r\n`,
+      "utf8",
+    );
+  } catch {}
+}
 const persist = () => {
   saveState(file, state);
   if (win && !win.isDestroyed()) win.webContents.send("nova:state", state);
@@ -265,6 +281,11 @@ function setup() {
   handle("saveSettings", updateSettings);
   handle("setFullscreen", async (on) => {
     if (typeof on !== "boolean") throw Error("Érvénytelen érték.");
+    // Leaving fullscreen would also leave Konzol mode: that goes through the picker.
+    if (!on && state.settings.consoleMode && modes) {
+      modes.open({ preselect: "windows" });
+      return true;
+    }
     await updateSettings({
       fullscreen: on,
       ...(!on ? { consoleMode: false } : {}),
@@ -554,7 +575,11 @@ if (!app.requestSingleInstanceLock()) {
   app.quit();
 } else {
   app.on("second-instance", (_event, argv = []) => {
-    if (modes && argv.includes("--mode-picker")) {
+    if (
+      modes &&
+      (argv.includes("--mode-picker") ||
+        (argv.includes("--startup") && modes.visible))
+    ) {
       modes.open();
       return;
     }
@@ -692,6 +717,8 @@ if (!app.requestSingleInstanceLock()) {
       onMediaHome: () => media?.home(),
       onModePicker: () => modes?.open(),
       requestDesktop,
+      // The picker owns the screen while it is open or a sign-in choice is pending.
+      guardPaused: () => !!modes && (modes.visible || modes.holdsMain()),
       onPad: (pad) => {
         if (shouldNotifyBattery(pad)) showBattery();
         if (!win.isDestroyed())
@@ -737,17 +764,19 @@ if (!app.requestSingleInstanceLock()) {
         if (visible) playtime.pause();
       },
     });
+    const services = createServices({
+      run,
+      spawn,
+      backupDir: path.join(app.getPath("userData"), "startup-backup"),
+    });
+    let mainReady = false;
     modes = createModeManager({
       BrowserWindow,
       ipcMain,
       screen,
       dialog,
       globalShortcut,
-      services: createServices({
-        run,
-        spawn,
-        backupDir: path.join(app.getPath("userData"), "startup-backup"),
-      }),
+      services,
       getSettings: () => state.settings,
       saveSettings: (patch) => updateSettings(patch),
       enterConsole: async () => {
@@ -756,7 +785,8 @@ if (!app.requestSingleInstanceLock()) {
       },
       enterDesktop: () => consoleMode.desktop(),
       showMain: () => {
-        if (win.isDestroyed()) return;
+        // Before the first paint ready-to-show shows the window itself.
+        if (win.isDestroyed() || !mainReady) return;
         win.show();
         win.focus();
       },
@@ -765,6 +795,7 @@ if (!app.requestSingleInstanceLock()) {
       },
       onVisible: (visible) => {
         if (visible) idleClock?.reset();
+        consoleMode.refreshGuard();
       },
       focusNative: (target) => {
         if (!isWindows || target.isDestroyed()) return;
@@ -849,6 +880,7 @@ if (!app.requestSingleInstanceLock()) {
       (_wc, _permission, callback) => callback(false),
     );
     win.once("ready-to-show", () => {
+      mainReady = true;
       if (!modes.holdsMain()) win.show();
     });
     win.once("closed", () => app.quit());
@@ -856,9 +888,34 @@ if (!app.requestSingleInstanceLock()) {
     // NOVA 1.11: the mode picker greets every sign-in, so NOVA has to start with Windows.
     if (isWindows && app.isPackaged && !state.settings.modePickerSetup)
       updateSettings({ startup: true, modePickerSetup: true }).catch(() => {});
-    if (process.argv.includes("--startup") && state.settings.modePicker !== false)
+    const flags = process.argv.slice(1).filter((arg) => arg.startsWith("--"));
+    const shown = flags.length ? flags.join(" ") : "kapcsoló nélkül";
+    const pickerOn = state.settings.modePicker !== false;
+    if (flags.includes("--mode-picker")) {
+      modes.open({ hold: true });
+      startupLog(`indulás (${shown}): módválasztó parancsikonról`);
+    } else if (pickerOn && flags.includes("--startup")) {
       modes.boot();
-    else if (process.argv.includes("--mode-picker")) modes.open({ hold: true });
+      startupLog(`indulás (${shown}): módválasztó visszaszámlálással`);
+    } else if (pickerOn && isWindows) {
+      // Started at sign-in some other way (Startup shortcut, Task Scheduler,
+      // Windows reopening apps)? NOVA stays hidden until that is known.
+      modes.hold();
+      consoleMode.refreshGuard();
+      services.sessionAge().then((age) => {
+        const signIn = age !== null && age < SIGN_IN_WINDOW_MS;
+        startupLog(
+          `indulás (${shown}): bejelentkezés óta ${age === null ? "ismeretlen idő" : Math.round(age / 1000) + " mp"}, ` +
+            (signIn ? "módválasztó visszaszámlálással" : "NOVA főmenü"),
+        );
+        if (signIn) modes.boot();
+        else modes.release();
+        consoleMode.refreshGuard();
+      });
+    } else
+      startupLog(
+        `indulás (${shown}): ${pickerOn ? "NOVA főmenü" : "a módválasztó ki van kapcsolva"}`,
+      );
     // A fullscreen window can become visible on creation; keep it behind the picker until a choice.
     if (modes.holdsMain() && win.isVisible()) win.hide();
     win.webContents.on("before-input-event", (event, input) => {

@@ -514,6 +514,15 @@ function createModeManager({
     apply,
     snapshot,
     holdsMain: () => holdMain,
+    // Keeps NOVA's main window hidden while the sign-in check runs.
+    hold() {
+      if (!picker) holdMain = true;
+    },
+    release() {
+      if (!holdMain || picker) return;
+      holdMain = false;
+      showMain();
+    },
     get visible() {
       return !!picker && !picker.isDestroyed();
     },

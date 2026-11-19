@@ -23,6 +23,12 @@ const JARVIS_PROCESS_SCRIPT =
   "Where-Object { $_.CommandLine -and $_.CommandLine.IndexOf($d,[StringComparison]::OrdinalIgnoreCase) -ge 0 } | " +
   "ForEach-Object { $_.ProcessId }) -join ','";
 
+// Start time of this sign-in: the oldest shell host (sihost / explorer) of our session.
+const SESSION_SCRIPT =
+  "$ErrorActionPreference='Stop';$s=(Get-Process -Id $PID).SessionId;" +
+  "$p=@(Get-Process -Name sihost,explorer -ErrorAction SilentlyContinue | Where-Object { $_.SessionId -eq $s } | Sort-Object StartTime)[0];" +
+  "[Console]::Out.Write([DateTimeOffset]::new($p.StartTime).ToUnixTimeMilliseconds())";
+
 function processAlive(pid) {
   if (!pid) return false;
   try {
@@ -495,6 +501,23 @@ function createServices({
     return startupSnapshot();
   }
 
+  // Milliseconds since the user signed in, or null when it cannot be told.
+  async function sessionAge() {
+    if (!windows) return null;
+    try {
+      const { stdout } = await run(
+        "powershell.exe",
+        ["-NoLogo", "-NoProfile", "-NonInteractive", "-Command", SESSION_SCRIPT],
+        { windowsHide: true, timeout: 10000 },
+      );
+      const started = Number(String(stdout).trim());
+      if (!Number.isFinite(started) || started <= 0) return null;
+      return Math.max(0, now() - started);
+    } catch {
+      return null;
+    }
+  }
+
   async function status() {
     if (!windows) return { ollama: null, jarvis: null };
     const [ollama, jarvis] = await Promise.all([ollamaRunning(), jarvisStatus()]);
@@ -503,6 +526,7 @@ function createServices({
 
   return {
     available: windows,
+    sessionAge,
     status,
     ollamaUp,
     ollamaRunning,
