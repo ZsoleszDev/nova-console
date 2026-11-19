@@ -43,3 +43,14 @@ test("Konzol and Windows free the GPU; Jarvis starts Ollama before Jarvis", () =
     assert.deepEqual(PLANS[mode].slice(0, 2).map(([id]) => id), ["jarvis-stop", "ollama-stop"]);
   assert.deepEqual(PLANS.jarvis.map(([id]) => id), ["ollama-start", "jarvis-start", "nova-desktop"]);
 });
+
+test("the taskbar setting is on by default and can be switched from the picker", () => {
+  assert.equal(defaults.hideTaskbar, true);
+  assert.deepEqual(validModePatch({ hideTaskbar: false }), { hideTaskbar: false });
+  assert.throws(() => validModePatch({ hideTaskbar: 1 }));
+});
+
+test("NOVA closes outside Konzol mode by default; the picker can switch it", () => {
+  assert.equal(defaults.quitOutsideConsole, true);
+  assert.deepEqual(validModePatch({ quitOutsideConsole: false }), { quitOutsideConsole: false });
+});

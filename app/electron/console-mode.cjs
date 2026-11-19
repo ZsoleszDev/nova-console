@@ -24,6 +24,7 @@ function createConsoleMode({
   onModePicker = () => {},
   requestDesktop = null,
   guardPaused = () => false,
+  taskbarHidden = () => false,
 }) {
   let helper,
     reader,
@@ -136,6 +137,7 @@ function createConsoleMode({
           "guard|" +
             (getSettings().consoleGuard === false || guardPaused() ? 0 : 1),
         );
+        write("taskbar|" + (taskbarHidden() ? 1 : 0));
       } catch {}
   }
   function syncHotkey() {
@@ -209,6 +211,7 @@ function createConsoleMode({
       const old = helper;
       helper = null;
       try {
+        old.stdin.write("taskbar|0\n");
         old.stdin.write("stop\n");
         old.stdin.end();
       } catch {}
@@ -696,7 +699,7 @@ function createConsoleMode({
       publish();
     },
     command: write,
-    refreshGuard: config,
+    refreshConfig: config,
     recover: () => recoverOnce(),
     returnFromMedia() {
       show(false);
