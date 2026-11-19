@@ -1,4 +1,23 @@
-﻿NOVA 1.11.3 – NINCS TÁLCA A MÓDVÁLASZTÓ ÉS A KONZOL MÓD ALATT
+﻿NOVA 1.11.4 – JARVIS ÉS WINDOWS MÓDBAN A NOVA BEZÁRUL
+
+Jarvis vagy Windows mód választása után a NOVA teljesen kilép, így memóriát és
+videókártyát sem foglal. A Jarvis és az Ollama ettől tovább fut.
+Visszahívás, amíg a NOVA be van zárva:
+– Kontroller: View + Menü együtt 3 másodpercig. Ezt egy kicsi, ablak nélküli
+  figyelő végzi (powershell.exe a Feladatkezelőben). Csak a kontrollert olvassa,
+  videókártyát nem használ, és kilép, amint a NOVA elindul.
+– Billentyűzet: Ctrl+Alt+M. A telepítő a Start menüs „NOVA – Mód választása”
+  parancsikonhoz rendeli; a Windows a következő bejelentkezéstől ismeri fel.
+– Az asztali vagy a Start menüs „NOVA – Mód választása” parancsikon.
+Ha így nyitod meg a választót, és B / Esc gombbal választás nélkül bezárod, a
+NOVA újra kilép. Ha bejelentkezés után a Windows módot választod, és az Ollama
+vagy a Jarvis még az Indítópultból is indul, a NOVA az első 3 percben rejtve
+futva marad, hogy ezeket leállítsa, és csak utána lép ki (lásd: A NOVA vegye át).
+Kikapcsolható: módválasztó > Beállítások > NOVA bezárása Jarvis és Windows
+módban. Ilyenkor a NOVA a korábbiak szerint a tálcára kerül.
+
+
+NOVA 1.11.3 – NINCS TÁLCA A MÓDVÁLASZTÓ ÉS A KONZOL MÓD ALATT
 
 A módválasztó és a konzol mód alatt a NOVA elrejti a Windows tálcáját, minden
 kijelzőn. Windows és Jarvis módban, a módválasztó bezárásakor, a NOVA-ból

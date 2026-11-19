@@ -17,7 +17,7 @@ try {
     $versionFile = Join-Path $target 'version'
     $reuse = (Test-Path -LiteralPath $exe) -and (Test-Path -LiteralPath $versionFile)
     if ($reuse) { $reuse = (Get-Content -LiteralPath $versionFile -Raw).Trim() -eq '45.3.2' }
-    Write-Host 'NOVA 1.11.3 telepítő / frissítő – Windows x64' -ForegroundColor Green
+    Write-Host 'NOVA 1.11.4 telepítő / frissítő – Windows x64' -ForegroundColor Green
     if ($reuse) {
         Write-Host 'Meglévő futtatókörnyezet felismerve. Az alkalmazás frissítése...'
         $newApp = Join-Path $target ('resources\app-new-' + [guid]::NewGuid().ToString('N'))
@@ -64,11 +64,13 @@ try {
         $shortcut.WorkingDirectory = $target
         $shortcut.IconLocation = (Join-Path $target 'nova.ico') + ',0'
         $shortcut.Description = 'Konzol, Jarvis vagy Windows mód választása'
+        # The Start menu shortcut carries Ctrl+Alt+M, so it works while NOVA is closed too.
+        if ($location.StartsWith($startMenu)) { $shortcut.Hotkey = 'CTRL+ALT+M' }
         $shortcut.Save()
     }
     if ($appBackup -and (Test-Path -LiteralPath $appBackup)) { Remove-Item -LiteralPath $appBackup -Recurse -Force -ErrorAction SilentlyContinue }
     Write-Host 'Kész! Indítsd a NOVA parancsikont. A Konzol mód a Beállításokban és a Gyorsmenüben kapcsolható.' -ForegroundColor Green
-    Write-Host 'Új: módválasztó (Konzol / Jarvis / Windows). Bejelentkezéskor magától megjelenik; most a NOVA – Mód választása parancsikonnal, futó NOVA mellett a Ctrl+Alt+M billentyűkkel nyitható meg.'
+    Write-Host 'Új: módválasztó (Konzol / Jarvis / Windows). Bejelentkezéskor magától megjelenik; most a NOVA – Mód választása parancsikonnal nyitható meg. A Ctrl+Alt+M a következő bejelentkezéstől akkor is működik, ha a NOVA be van zárva.'
     Write-Host 'A játéktár, a beállítások és az automatikus indulás beállítása megmaradt.'
     Write-Host 'A Disney+, HBO Max és YouTube kontrolleres kezeléséhez Microsoft Edge és XInput-kompatibilis kontroller szükséges.'
 } catch {

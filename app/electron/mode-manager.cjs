@@ -28,7 +28,14 @@ const PLANS = {
 function validModePatch(patch) {
   if (!patch || typeof patch !== "object") throw Error("Érvénytelen beállítás.");
   const next = {};
-  for (const key of ["modePicker", "jarvisWindow", "consoleGuard", "fastSignIn", "hideTaskbar"])
+  for (const key of [
+    "modePicker",
+    "jarvisWindow",
+    "consoleGuard",
+    "fastSignIn",
+    "hideTaskbar",
+    "quitOutsideConsole",
+  ])
     if (key in patch) {
       if (typeof patch[key] !== "boolean") throw Error("Érvénytelen beállítás.");
       next[key] = patch[key];
@@ -88,6 +95,7 @@ function createModeManager({
     startup = { ollama: false, jarvis: false, saved: [] },
     bootAt = 0,
     booted = false,
+    startedForPicker = false,
     signIn = { autoLogon: null, fastStartup: null },
     signInChecked = false,
     enforceTimer = null,
@@ -128,6 +136,7 @@ function createModeManager({
         jarvisWindow: s.jarvisWindow !== false,
         consoleGuard: s.consoleGuard !== false,
         hideTaskbar: s.hideTaskbar !== false,
+        quitOutsideConsole: s.quitOutsideConsole !== false,
         jarvisPath: s.jarvisPath || "",
       },
       jarvisDir,
@@ -244,7 +253,7 @@ function createModeManager({
     destroyPicker();
     if (holdMain) {
       holdMain = false;
-      showMain();
+      showMain("closed");
     }
     return true;
   }
@@ -262,6 +271,7 @@ function createModeManager({
     }
     reason = options.reason === "boot" ? "boot" : "manual";
     if (options.hold) holdMain = true;
+    startedForPicker = !!options.hold;
     if (!options.preselect) preselect = null;
     if (job?.done) job = null;
     searched = false;
@@ -325,7 +335,8 @@ function createModeManager({
       win.webContents.focus();
       // Windows may refuse focus to a new window over a game; NOVA's helper can take it.
       focusNative(win);
-      keepFocus(win, reason === "boot" ? 30000 : 4000);
+      // Started for the picker alone (shortcut, controller): NOVA's helper needs a moment.
+      keepFocus(win, reason === "boot" ? 30000 : startedForPicker ? 15000 : 4000);
     });
     win
       .loadFile(path.join(__dirname, "mode-picker.html"))
@@ -428,7 +439,17 @@ function createModeManager({
     const current = {
       mode,
       gen: ++generation,
-      steps: PLANS[mode].map(([id, label]) => ({ id, label, state: "wait", note: "" })),
+      steps: PLANS[mode].map(([id, label]) => ({
+        id,
+        label:
+          id === "nova-desktop" && settings().quitOutsideConsole !== false
+            ? mode === "jarvis"
+              ? "NOVA bezárása"
+              : "Váltás a Windows asztalra, NOVA bezárása"
+            : label,
+        state: "wait",
+        note: "",
+      })),
       error: null,
       done: false,
     };
@@ -582,6 +603,8 @@ function createModeManager({
     apply,
     snapshot,
     holdsMain: () => holdMain,
+    busy: () => !!job && !job.done && !job.error,
+    enforcing: () => !!enforceTimer,
     // Keeps NOVA's main window hidden while the sign-in check runs.
     hold() {
       if (!picker) holdMain = true;
@@ -589,7 +612,7 @@ function createModeManager({
     release() {
       if (!holdMain || picker) return;
       holdMain = false;
-      showMain();
+      showMain("release");
     },
     get visible() {
       return !!picker && !picker.isDestroyed();

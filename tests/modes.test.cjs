@@ -49,3 +49,8 @@ test("the taskbar setting is on by default and can be switched from the picker",
   assert.deepEqual(validModePatch({ hideTaskbar: false }), { hideTaskbar: false });
   assert.throws(() => validModePatch({ hideTaskbar: 1 }));
 });
+
+test("NOVA closes outside Konzol mode by default; the picker can switch it", () => {
+  assert.equal(defaults.quitOutsideConsole, true);
+  assert.deepEqual(validModePatch({ quitOutsideConsole: false }), { quitOutsideConsole: false });
+});

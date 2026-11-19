@@ -187,6 +187,7 @@ function setup() {
       "consoleGuard",
       "fastSignIn",
       "hideTaskbar",
+      "quitOutsideConsole",
     ])
       if (k in patch) {
         if (typeof patch[k] !== "boolean")
@@ -534,6 +535,57 @@ function setup() {
   });
   handle("power", requestPower);
 }
+// Jarvis / Windows mode: NOVA quits completely, so it holds no memory or GPU.
+// A small controller watcher (View + Menu 3 s) and the Ctrl+Alt+M shortcut key
+// of the "NOVA – Mód választása" shortcut bring the picker back.
+let quitTimer = null;
+function startRecallWatcher() {
+  if (!isWindows || !app.isPackaged) return;
+  try {
+    spawn(
+      "powershell.exe",
+      [
+        "-NoLogo",
+        "-NoProfile",
+        "-NonInteractive",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-WindowStyle",
+        "Hidden",
+        "-File",
+        path.join(__dirname, "windows/recall.ps1"),
+        "-NovaExe",
+        process.execPath,
+        "-NovaPid",
+        String(process.pid),
+      ],
+      {
+        cwd: path.dirname(process.execPath),
+        detached: true,
+        stdio: "ignore",
+        windowsHide: true,
+      },
+    ).unref();
+  } catch {}
+}
+function quitAfterMode() {
+  if (state.settings.quitOutsideConsole === false) return;
+  clearInterval(quitTimer);
+  const attempt = () => {
+    if (!["jarvis", "windows"].includes(state.settings.currentMode)) return true;
+    // Wait while the picker is open again, a switch runs, or Ollama / Jarvis
+    // Startup shortcuts are still being kept closed after sign-in.
+    if (modes.visible || modes.busy() || modes.enforcing()) return false;
+    startupLog(`kilépés: ${state.settings.currentMode === "jarvis" ? "Jarvis" : "Windows"} mód`);
+    startRecallWatcher();
+    app.quit();
+    return true;
+  };
+  if (!attempt())
+    quitTimer = setInterval(() => {
+      if (attempt()) clearInterval(quitTimer);
+    }, 2000);
+}
 // In Konzol mode the way out to Windows leads through the mode picker.
 async function requestDesktop() {
   if (state.settings.consoleMode && modes) {
@@ -799,8 +851,23 @@ if (!app.requestSingleInstanceLock()) {
         await updateSettings({ consoleMode: true });
         consoleMode.showDashboard();
       },
-      enterDesktop: () => consoleMode.desktop(),
-      showMain: () => {
+      enterDesktop: async () => {
+        await consoleMode.desktop();
+        // NOVA is about to quit: no minimised window on the taskbar meanwhile.
+        if (state.settings.quitOutsideConsole !== false && !win.isDestroyed())
+          win.hide();
+      },
+      showMain: (why) => {
+        // Picker opened only to change modes and closed without a choice: back to
+        // the state before, which in Jarvis / Windows mode means NOVA closed.
+        if (
+          why === "closed" &&
+          state.settings.quitOutsideConsole !== false &&
+          ["jarvis", "windows"].includes(state.settings.currentMode)
+        ) {
+          quitAfterMode();
+          return;
+        }
         // Before the first paint ready-to-show shows the window itself.
         if (win.isDestroyed() || !mainReady) return;
         win.show();
@@ -808,6 +875,7 @@ if (!app.requestSingleInstanceLock()) {
       },
       onApplied: (mode) => {
         if (mode === "console" && !win.isDestroyed()) consoleMode.showDashboard();
+        else quitAfterMode();
       },
       onVisible: (visible) => {
         if (visible) idleClock?.reset();
@@ -969,6 +1037,7 @@ if (!app.requestSingleInstanceLock()) {
   app.on("window-all-closed", () => app.quit());
   app.on("before-quit", () => {
     clearTimeout(recoveryTimer);
+    clearInterval(quitTimer);
     modes?.dispose();
     idleClock?.dispose();
     playtime?.dispose();

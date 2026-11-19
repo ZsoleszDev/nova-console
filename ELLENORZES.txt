@@ -1,5 +1,14 @@
-﻿NOVA 1.11.3 – ELLENŐRZÉSI JEGYZET
+﻿NOVA 1.11.4 – ELLENŐRZÉSI JEGYZET
 2026. november 19.
+
+– 1.11.4: 23 Node-teszt sikeres. A valódi NOVA főfolyamattal Electronban:
+  Konzol után F11, majd Windows választás után a NOVA kilép (Windows mód és
+  kikapcsolt konzol mód mentve, kilépés az indulási naplóban); --mode-picker
+  indítás Windows módban, B után a főmenü nem jelenik meg, a NOVA kilép.
+  A kontrolleres figyelő (Recall.cs) C# 5 fordítása sikeres. A figyelő futása,
+  a fizikai kontrolleres visszahívás, a parancsikon Ctrl+Alt+M gyorsbillentyűje
+  és a Jarvis / Ollama túlélése a NOVA kilépése után valódi Windowson
+  ellenőrizendő.
 
 – 1.11.3: 22 Node-teszt sikeres, köztük a konzolsegéd tálcaparancsa
   (helyettesített segédfolyamattal): rejtve a módválasztó és a konzol mód
