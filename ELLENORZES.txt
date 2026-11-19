@@ -1,5 +1,13 @@
-﻿NOVA 1.11.5 – ELLENŐRZÉSI JEGYZET
+﻿NOVA 1.11.6 – ELLENŐRZÉSI JEGYZET
 2026. november 19.
+
+– 1.11.6: 33 Node-teszt sikeres, köztük a figyelő egyszeri lefordítása és
+  indítása, a PowerShell-es tartalék és a fel nem ismert Parsec-sorok jelzése.
+  A Recall.cs ablak nélküli programként (winexe) fordítva mono alatt végig
+  futott: elindult, a régi naplósort kihagyta, az ismeretlen sort naplózta, az
+  új „Név#szám connected.” sorra elindította a „NOVA --mode-picker”-t, és
+  mindezt beírta a naplóba. A Windowsos Add-Type -OutputType WindowsApplication
+  fordítás és a valódi Parsec-kapcsolat Windowson ellenőrizendő.
 
 – 1.11.5: 28 Node-teszt sikeres, köztük a Parsec-napló figyelése valódi
   fájlokkal: a korábbi sorok nem számítanak, félbe írt sor kivárása, gyors
