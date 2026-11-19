@@ -1,5 +1,14 @@
-﻿NOVA 1.11.4 – ELLENŐRZÉSI JEGYZET
+﻿NOVA 1.11.5 – ELLENŐRZÉSI JEGYZET
 2026. november 19.
+
+– 1.11.5: 28 Node-teszt sikeres, köztük a Parsec-napló figyelése valódi
+  fájlokkal: a korábbi sorok nem számítanak, félbe írt sor kivárása, gyors
+  újracsatlakozás kihagyása, újrakezdett és később megjelenő napló.
+  A bezárt NOVA melletti C# figyelő Parsec-része mono alatt valódi fájlokkal
+  futott, ugyanezekkel az esetekkel, mind sikeres.
+  A Parsec valódi naplósorának formája a hivatalos súgóban nem szerepel; a
+  felismerés a „Név#szám connected.” alakra épül, valódi Parsec-kapcsolattal
+  Windowson ellenőrizendő.
 
 – 1.11.4: 23 Node-teszt sikeres. A valódi NOVA főfolyamattal Electronban:
   Konzol után F11, majd Windows választás után a NOVA kilép (Windows mód és

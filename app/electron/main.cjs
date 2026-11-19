@@ -26,6 +26,7 @@ const { createBatteryNotice } = require("./idle-policy.cjs");
 const { createArtwork } = require("./artwork.cjs");
 const { createModeManager } = require("./mode-manager.cjs");
 const { createServices } = require("./services.cjs");
+const { createParsecWatch, parsecLogPaths } = require("./parsec-watch.cjs");
 protocol.registerSchemesAsPrivileged([
   {
     scheme: "nova-art",
@@ -67,6 +68,7 @@ let win,
   idleClock,
   recoveryTimer,
   modes,
+  parsec,
   batteryPending = false,
   updateSettings;
 const isWindows = process.platform === "win32";
@@ -188,6 +190,7 @@ function setup() {
       "fastSignIn",
       "hideTaskbar",
       "quitOutsideConsole",
+      "parsecPicker",
     ])
       if (k in patch) {
         if (typeof patch[k] !== "boolean")
@@ -558,6 +561,8 @@ function startRecallWatcher() {
         process.execPath,
         "-NovaPid",
         String(process.pid),
+        "-Parsec",
+        state.settings.parsecPicker === false ? "0" : "1",
       ],
       {
         cwd: path.dirname(process.execPath),
@@ -893,6 +898,27 @@ if (!app.requestSingleInstanceLock()) {
         } catch {}
       },
     });
+    // A new Parsec connection (e.g. the laptop on the TV) brings up the mode picker.
+    if (isWindows)
+      parsec = createParsecWatch({
+        paths: parsecLogPaths(),
+        onConnect: () => {
+          if (state.settings.parsecPicker === false) return;
+          // The sign-in picker is on its way anyway.
+          if (modes.holdsMain() && !modes.visible) return;
+          const session = consoleMode.snapshot().session;
+          if (session && ["starting", "running"].includes(session.phase)) {
+            startupLog("Parsec-csatlakozás játék közben: a módválasztó nem jön elő");
+            return;
+          }
+          if (media?.snapshot().active) {
+            startupLog("Parsec-csatlakozás média közben: a módválasztó nem jön elő");
+            return;
+          }
+          startupLog("Parsec-csatlakozás: módválasztó");
+          modes.open();
+        },
+      });
     let recoveryGeneration = 0,
       systemSuspended = false;
     function recover(unlock = true) {
@@ -1038,6 +1064,7 @@ if (!app.requestSingleInstanceLock()) {
   app.on("before-quit", () => {
     clearTimeout(recoveryTimer);
     clearInterval(quitTimer);
+    parsec?.dispose();
     modes?.dispose();
     idleClock?.dispose();
     playtime?.dispose();

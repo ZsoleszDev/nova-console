@@ -427,6 +427,7 @@ function settingRows() {
     { id: "jarvisWindow", type: "toggle", label: "Jarvis ablak megnyitása", sub: "Jarvis módban a Jarvis saját ablaka is megnyílik.", on: s.jarvisWindow },
     { id: "consoleGuard", type: "toggle", label: "Asztal elrejtése konzol módban", sub: "Ha konzol módban előkerül a Windows asztala, a NOVA pár másodperc múlva visszajön.", on: s.consoleGuard },
     { id: "quitOutsideConsole", type: "toggle", label: "NOVA bezárása Jarvis és Windows módban", sub: "A NOVA teljesen kilép, így memóriát és videókártyát sem foglal. Visszahívás: View + Menü 3 mp-ig, Ctrl+Alt+M, vagy a NOVA – Mód választása parancsikon.", on: s.quitOutsideConsole },
+    { id: "parsecPicker", type: "toggle", label: "Módválasztó Parsec-csatlakozáskor", sub: "Ha a géphez új Parsec-kapcsolat érkezik (például a laptopról a tévén), előjön a módválasztó. Bezárt NOVA mellett is. Játék és média közben nem, és rövid megszakadás utáni újracsatlakozáskor sem.", on: s.parsecPicker },
     { id: "hideTaskbar", type: "toggle", label: "Tálca elrejtése", sub: "A módválasztó és a konzol mód alatt a Windows tálcája nem látszik. Windows és Jarvis módban, illetve a NOVA bezárásakor visszajön.", on: s.hideTaskbar },
     own.length
       ? { id: "takeover", type: "action", label: "Saját automatikus indítás", sub: `Az Indítópultból magától indul: ${own.join(", ")}. Javasolt, hogy csak a NOVA indítsa őket.`, value: "A NOVA vegye át" }
