@@ -72,6 +72,9 @@ namespace Nova {
   static string Id="",Kind="",Target="",Directory="";
   static bool Stopping,Observed,ReportedRunning,ReportedResume,DesktopOpen,ComboLatched,ConsoleEnabled,OverlayEnabled=true,Suspended,MediaActive;
   static bool SawGameInForeground,GameWasForeground;
+  // Mode picker: View + Menu held for 3 s. Guard: in Konzol mode the bare desktop returns to NOVA.
+  static bool PickerCombo,PickerLatched,GuardEnabled;
+  static long GuardSince;
   static int Deadzone=35,Repeat=160,GuideEpoch;
   static long InputGuard,LastPadReport,LastAudio,LastPadActivity,LastIdleReport,RumbleUntil,LastRumble;
   static uint RumbleIndex; static bool Feedback;
@@ -156,8 +159,11 @@ namespace Nova {
    if(connected!=Connected||selected!=SelectedIndex){Connected=connected;PadSeeded=false;}SelectedIndex=selected;
    ushort buttons=connected?state.Pad.Buttons:(ushort)0,pressed=PadSeeded?(ushort)(buttons&~PreviousButtons):(ushort)0;
    bool held=(buttons&0x30)==0x30;
-   if((ConsoleEnabled||MediaActive)&&held){if(ComboSince==0)ComboSince=now;if(!ComboLatched&&now-ComboSince>=1000){ComboLatched=true;if(MediaActive)Emit("{\"type\":\"media-home\"}");else OpenGuide();}}
-   else if(!held){ComboSince=0;ComboLatched=false;}
+   if(held){
+    if(ComboSince==0)ComboSince=now;
+    if((ConsoleEnabled||MediaActive)&&!ComboLatched&&now-ComboSince>=1000){ComboLatched=true;if(MediaActive)Emit("{\"type\":\"media-home\"}");else OpenGuide();}
+    if(PickerCombo&&!PickerLatched&&now-ComboSince>=3000){PickerLatched=true;Emit("{\"type\":\"mode-picker\"}");}
+   }else{ComboSince=0;ComboLatched=false;PickerLatched=false;}
    if(target!=LastInputWindow){LastInputWindow=target;InputGuard=now+220;LastDirection="";}
    if(own&&connected&&!held&&now>=InputGuard&&!Suspended){
     Pad p=state.Pad;int threshold=(int)(32767*Deadzone/100.0);
@@ -171,6 +177,17 @@ namespace Nova {
    }
    PreviousButtons=buttons;PadSeeded=connected;
    if(Guide!=IntPtr.Zero&&IsWindowVisible(Guide)&&now-LastAudio>3000){Emit(CoreAudio.Apply("get",0));LastAudio=now;}
+  }
+  static bool IsShell(IntPtr window){
+   if(window==IntPtr.Zero)return false;
+   StringBuilder name=new StringBuilder(64);GetClassName(window,name,name.Capacity);string kind=name.ToString();
+   return kind=="Progman"||kind=="WorkerW"||kind=="Shell_TrayWnd"||kind=="Shell_SecondaryTrayWnd";
+  }
+  static void Guard(long now){
+   if(!GuardEnabled||!ConsoleEnabled||MediaActive||Suspended||Id.Length>0||!IsShell(GetForegroundWindow())){GuardSince=0;return;}
+   if(GuardSince==0){GuardSince=now;return;}
+   if(now-GuardSince<2500)return;
+   GuardSince=0;DesktopOpen=true;Focus(Dashboard);Emit("{\"type\":\"guard-home\"}");
   }
   static void ResetDashboardInput(){
    DesktopOpen=true;
@@ -192,10 +209,13 @@ namespace Nova {
    if(command=="guide"){OpenGuide();return;}
    if(command=="media-active|1"||command=="media-active|0"){MediaActive=command=="media-active|1";return;}
    if(command=="guide-hide"){Guide=IntPtr.Zero;DesktopOpen=GetForegroundWindow()==Dashboard;return;}
+   if(command=="picker|1"||command=="picker|0"){PickerCombo=command=="picker|1";if(!PickerCombo)PickerLatched=false;return;}
+   if(command=="guard|1"||command=="guard|0"){GuardEnabled=command=="guard|1";GuardSince=0;return;}
    if(command=="suspend|1"||command=="suspend|0"){Suspended=command=="suspend|1";StopRumble();LastPadActivity=Clock.ElapsedMilliseconds;PadSeeded=false;return;}
    string[] config=command.Split('|');
    if(config.Length==5&&config[0]=="config"){int deadzone,repeat;if(Int32.TryParse(config[3],out deadzone)&&Int32.TryParse(config[4],out repeat)){ConsoleEnabled=config[1]=="1";OverlayEnabled=config[2]=="1";Deadzone=Math.Max(20,Math.Min(70,deadzone));Repeat=Math.Max(100,Math.Min(300,repeat));}return;}
    if(config.Length==3&&config[0]=="guide-window"){long handle;int epoch;if(Int64.TryParse(config[1],out handle)&&Int32.TryParse(config[2],out epoch)){IntPtr window=new IntPtr(handle);if(IsWindow(window)&&Pid(window)==NovaPid){Guide=window;GuideEpoch=epoch;InputGuard=Clock.ElapsedMilliseconds+250;Focus(Guide);Emit(CoreAudio.Apply("get",0));}}return;}
+   if(config.Length==2&&config[0]=="focus"){long handle;if(Int64.TryParse(config[1],out handle)){IntPtr window=new IntPtr(handle);if(IsWindow(window)&&Pid(window)==NovaPid)Focus(window);}return;}
    if(config.Length>=2&&config[0]=="audio") {int value=0;if(config[1]=="get"||(config.Length==3&&Int32.TryParse(config[2],out value)&&(config[1]=="set"&&value>=0&&value<=100||config[1]=="mute"&&(value==0||value==1))))Emit(CoreAudio.Apply(config[1],value));return;}
    if(command=="resume"||command.StartsWith("resume|",StringComparison.Ordinal)){
     string request=command.IndexOf('|')>=0?command.Substring(command.IndexOf('|')+1):"0";int requestId;if(!Int32.TryParse(request,out requestId))return;
@@ -281,7 +301,7 @@ namespace Nova {
    try{while(!Stopping&&IsWindow(Dashboard)){
     string command;while(Queue.TryDequeue(out command))try{Command(command);}catch{}
     long now=Clock.ElapsedMilliseconds;Controller(now);
-    if(now-lastScan>=500){Observe();lastScan=now;}Thread.Sleep(20);
+    if(now-lastScan>=500){Observe();Guard(now);lastScan=now;}Thread.Sleep(20);
    }}catch{Emit("{\"type\":\"error\",\"message\":\"Az automatikus visszatérés megállt. A Ctrl+Alt+N gyorsbillentyűvel visszahívhatod a NOVA-t.\"}");}finally{StopRumble();}
   }
  }
