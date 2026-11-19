@@ -1,5 +1,22 @@
-﻿NOVA 1.10.2 – ELLENŐRZÉSI JEGYZET
-2026. november 18.
+﻿NOVA 1.11.0 – ELLENŐRZÉSI JEGYZET
+2026. november 19.
+
+– 1.11.0, módválasztó: 17 új Node-teszt sikeres (node --test tests/*.test.cjs).
+  A Jarvis leállítása a saját helyi API-jával és kényszerítve, a Jarvis
+  mappájához tartozó folyamatok, az Ollama leállítási sorrendje, indítási
+  argumentumok, a Jarvis mappa megkeresése, Indítópult-átvétel és -visszaállítás,
+  a beállítások tisztítása. A Jarvis API-t valódi helyi HTTP-szerver helyettesíti.
+– Valódi Electron 45.3.2 próbák Linuxon, helyettesített Windows-szolgáltatásokkal:
+  bejelentkezési visszaszámlálás és automatikus Jarvis mód, Konzol és Windows
+  választás, futó váltás felülírása későbbi választással, hiba és Újra,
+  beállítások kontrollerszerű navigációval, kézi visszahívás és B-s bezárás.
+  A valódi NOVA főfolyamattal: --startup indításkor a főablak a választásig
+  rejtve marad, Konzol után konzol mód, F11 konzol módban a választót nyitja,
+  Windows választás után a konzol mód kikapcsol.
+– A C# konzolsegéd (View + Menü 3 mp, asztalvédelem, natív fókusz) és a
+  Jarvis-ablakbezáró C# 5 fordítása sikeres (mono mcs, -langversion:5).
+– Valódi Windows-gépen, Ollamával, Jarvisszal és fizikai kontrollerrel ez a
+  verzió még nem futott: ezt a saját gépeden kell ellenőrizni.
 
 – 1.10.2: 66 Node-teszt, 64 felületi ellenőrzés és két Electron próba sikeres.
   A helyettesített Windows segéd tesztje ellenőrizte a tálcáról visszaállítást

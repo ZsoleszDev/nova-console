@@ -21,6 +21,8 @@ function createConsoleMode({
   onAudio = () => {},
   onIdle = () => {},
   onMediaHome = () => {},
+  onModePicker = () => {},
+  requestDesktop = null,
 }) {
   let helper,
     reader,
@@ -125,6 +127,12 @@ function createConsoleMode({
           ].join("|"),
         );
       } catch {}
+    if (helper)
+      try {
+        // View + Menu held for 3 s opens the mode picker in every mode.
+        write("picker|1");
+        write("guard|" + (getSettings().consoleGuard === false ? 0 : 1));
+      } catch {}
   }
   function syncHotkey() {
     if (process.platform !== "win32") return;
@@ -148,6 +156,8 @@ function createConsoleMode({
     if (!tray || tray.isDestroyed()) return;
     tray.setContextMenu(
       Menu.buildFromTemplate([
+        { label: "Mód választása…  (Ctrl+Alt+M)", click: () => onModePicker() },
+        { type: "separator" },
         { label: "NOVA főmenü", click: requestHome },
         {
           label: "Konzol mód",
@@ -161,7 +171,10 @@ function createConsoleMode({
         },
         {
           label: "Windows mód",
-          click: () => desktop().catch((e) => notice(e.message)),
+          click: () =>
+            Promise.resolve((requestDesktop || desktop)()).catch((e) =>
+              notice(e.message),
+            ),
         },
         { type: "separator" },
         { label: "Kilépés a NOVA-ból", click: () => app.quit() },
@@ -270,6 +283,15 @@ function createConsoleMode({
       watchWaiters.get(msg.id)?.(true);
       watchWaiters.delete(msg.id);
     } else if (msg.type === "media-home" && mediaActive) onMediaHome();
+    else if (msg.type === "mode-picker") onModePicker();
+    else if (
+      msg.type === "guard-home" &&
+      enabled &&
+      !mediaActive &&
+      !suspended &&
+      !session
+    )
+      show(false);
     else if (msg.type === "home" && enabled) show(true);
     else if (
       msg.type === "session" &&

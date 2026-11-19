@@ -9,6 +9,7 @@ const {
   nativeImage,
   screen,
   Notification,
+  globalShortcut,
 } = require("electron");
 const fs = require("node:fs");
 const path = require("node:path");
@@ -23,6 +24,8 @@ const { createMediaLibrary } = require("./media-library.cjs");
 const { createIdleClock } = require("./idle-clock.cjs");
 const { createBatteryNotice } = require("./idle-policy.cjs");
 const { createArtwork } = require("./artwork.cjs");
+const { createModeManager } = require("./mode-manager.cjs");
+const { createServices } = require("./services.cjs");
 protocol.registerSchemesAsPrivileged([
   {
     scheme: "nova-art",
@@ -43,6 +46,8 @@ const { createPlaytimeTracker } = require("./playtime.cjs");
 const consolePolicy = require("./console-policy.cjs");
 const {
   defaults,
+  modes: modeIds,
+  modeCountdowns,
   validateGame,
   parseSteamLibraryPaths,
   parseSteamManifest,
@@ -61,6 +66,7 @@ let win,
   mediaLibrary,
   idleClock,
   recoveryTimer,
+  modes,
   batteryPending = false,
   updateSettings;
 const isWindows = process.platform === "win32";
@@ -159,6 +165,10 @@ function setup() {
       "consoleMode",
       "overlayEnabled",
       "playtimeTracking",
+      "modePicker",
+      "modePickerSetup",
+      "jarvisWindow",
+      "consoleGuard",
     ])
       if (k in patch) {
         if (typeof patch[k] !== "boolean")
@@ -189,6 +199,29 @@ function setup() {
       )
         throw Error("A név 1–30 karakter lehet.");
       next.name = patch.name.trim();
+    }
+    if ("modeCountdown" in patch) {
+      if (!modeCountdowns.includes(patch.modeCountdown))
+        throw Error("Érvénytelen visszaszámlálás.");
+      next.modeCountdown = patch.modeCountdown;
+    }
+    for (const key of ["defaultMode", "currentMode"])
+      if (key in patch) {
+        if (
+          !modeIds.includes(patch[key]) &&
+          !(key === "currentMode" && patch[key] === "")
+        )
+          throw Error("Ismeretlen mód.");
+        next[key] = patch[key];
+      }
+    if ("jarvisPath" in patch) {
+      if (
+        typeof patch.jarvisPath !== "string" ||
+        patch.jarvisPath.length > 1000 ||
+        (patch.jarvisPath && !path.win32.isAbsolute(patch.jarvisPath))
+      )
+        throw Error("Érvénytelen Jarvis mappa.");
+      next.jarvisPath = patch.jarvisPath;
     }
     if ("wallpaper" in patch) {
       if (!["forza", "ori", "plain"].includes(patch.wallpaper))
@@ -246,7 +279,7 @@ function setup() {
   handle("resumeGame", () => consoleMode.resume());
   handle("openGameGuide", () => consoleMode.openGuide());
   handle("getPlaytime", () => playtime.snapshot());
-  handle("enterDesktop", () => consoleMode.desktop());
+  handle("enterDesktop", requestDesktop);
   handle("addFile", async () => {
     requireWindows();
     const r = await dialog.showOpenDialog(win, {
@@ -471,12 +504,20 @@ function setup() {
     await shell.openExternal(uris[key]);
     return true;
   });
-  handle("minimize", () => consoleMode.desktop());
+  handle("minimize", requestDesktop);
   handle("close", () => {
     app.quit();
     return true;
   });
   handle("power", requestPower);
+}
+// In Konzol mode the way out to Windows leads through the mode picker.
+async function requestDesktop() {
+  if (state.settings.consoleMode && modes) {
+    modes.open({ preselect: "windows" });
+    return true;
+  }
+  return consoleMode.desktop();
 }
 async function requestPower(action) {
   requireWindows();
@@ -512,7 +553,11 @@ async function requestPower(action) {
 if (!app.requestSingleInstanceLock()) {
   app.quit();
 } else {
-  app.on("second-instance", () => {
+  app.on("second-instance", (_event, argv = []) => {
+    if (modes && argv.includes("--mode-picker")) {
+      modes.open();
+      return;
+    }
     if (win) {
       if (win.isMinimized()) win.restore();
       win.show();
@@ -645,6 +690,8 @@ if (!app.requestSingleInstanceLock()) {
       },
       onIdle: (ms) => idleClock?.padIdle(ms),
       onMediaHome: () => media?.home(),
+      onModePicker: () => modes?.open(),
+      requestDesktop,
       onPad: (pad) => {
         if (shouldNotifyBattery(pad)) showBattery();
         if (!win.isDestroyed())
@@ -678,7 +725,7 @@ if (!app.requestSingleInstanceLock()) {
         consoleMode.showDashboard();
         win.webContents.send("nova:navigate", page);
       },
-      desktop: () => consoleMode.desktop(),
+      desktop: () => requestDesktop(),
     });
     idleClock = createIdleClock({
       BrowserWindow,
@@ -688,6 +735,47 @@ if (!app.requestSingleInstanceLock()) {
       mediaOpen: () => !!media?.snapshot().active || localFiles.hasOpenMedia(),
       onChange: (visible) => {
         if (visible) playtime.pause();
+      },
+    });
+    modes = createModeManager({
+      BrowserWindow,
+      ipcMain,
+      screen,
+      dialog,
+      globalShortcut,
+      services: createServices({
+        run,
+        spawn,
+        backupDir: path.join(app.getPath("userData"), "startup-backup"),
+      }),
+      getSettings: () => state.settings,
+      saveSettings: (patch) => updateSettings(patch),
+      enterConsole: async () => {
+        await updateSettings({ consoleMode: true });
+        consoleMode.showDashboard();
+      },
+      enterDesktop: () => consoleMode.desktop(),
+      showMain: () => {
+        if (win.isDestroyed()) return;
+        win.show();
+        win.focus();
+      },
+      onApplied: (mode) => {
+        if (mode === "console" && !win.isDestroyed()) consoleMode.showDashboard();
+      },
+      onVisible: (visible) => {
+        if (visible) idleClock?.reset();
+      },
+      focusNative: (target) => {
+        if (!isWindows || target.isDestroyed()) return;
+        const handle = target.getNativeWindowHandle();
+        const pointer =
+          handle.length >= 8
+            ? handle.readBigUInt64LE(0).toString()
+            : String(handle.readUInt32LE(0));
+        try {
+          consoleMode.command("focus|" + pointer);
+        } catch {}
       },
     });
     let recoveryGeneration = 0,
@@ -760,9 +848,19 @@ if (!app.requestSingleInstanceLock()) {
     win.webContents.session.setPermissionRequestHandler(
       (_wc, _permission, callback) => callback(false),
     );
-    win.once("ready-to-show", () => win.show());
+    win.once("ready-to-show", () => {
+      if (!modes.holdsMain()) win.show();
+    });
     win.once("closed", () => app.quit());
     win.loadFile(path.join(__dirname, "../dist/index.html"));
+    // NOVA 1.11: the mode picker greets every sign-in, so NOVA has to start with Windows.
+    if (isWindows && app.isPackaged && !state.settings.modePickerSetup)
+      updateSettings({ startup: true, modePickerSetup: true }).catch(() => {});
+    if (process.argv.includes("--startup") && state.settings.modePicker !== false)
+      modes.boot();
+    else if (process.argv.includes("--mode-picker")) modes.open({ hold: true });
+    // A fullscreen window can become visible on creation; keep it behind the picker until a choice.
+    if (modes.holdsMain() && win.isVisible()) win.hide();
     win.webContents.on("before-input-event", (event, input) => {
       if (
         input.type === "keyDown" &&
@@ -770,6 +868,10 @@ if (!app.requestSingleInstanceLock()) {
         !input.isAutoRepeat
       ) {
         event.preventDefault();
+        if (state.settings.consoleMode) {
+          modes.open({ preselect: "windows" });
+          return;
+        }
         updateSettings({
           fullscreen: !win.isFullScreen(),
           ...(state.settings.consoleMode ? { consoleMode: false } : {}),
@@ -780,6 +882,7 @@ if (!app.requestSingleInstanceLock()) {
   app.on("window-all-closed", () => app.quit());
   app.on("before-quit", () => {
     clearTimeout(recoveryTimer);
+    modes?.dispose();
     idleClock?.dispose();
     playtime?.dispose();
     guide?.dispose();

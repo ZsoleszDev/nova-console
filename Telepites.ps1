@@ -17,7 +17,7 @@ try {
     $versionFile = Join-Path $target 'version'
     $reuse = (Test-Path -LiteralPath $exe) -and (Test-Path -LiteralPath $versionFile)
     if ($reuse) { $reuse = (Get-Content -LiteralPath $versionFile -Raw).Trim() -eq '45.3.2' }
-    Write-Host 'NOVA 1.10.2 telepítő / frissítő – Windows x64' -ForegroundColor Green
+    Write-Host 'NOVA 1.11.0 telepítő / frissítő – Windows x64' -ForegroundColor Green
     if ($reuse) {
         Write-Host 'Meglévő futtatókörnyezet felismerve. Az alkalmazás frissítése...'
         $newApp = Join-Path $target ('resources\app-new-' + [guid]::NewGuid().ToString('N'))
@@ -57,8 +57,18 @@ try {
         $shortcut.Description = 'NOVA – a te játéktered'
         $shortcut.Save()
     }
+    foreach ($location in @((Join-Path $startMenu 'NOVA – Mód választása.lnk'), (Join-Path ([Environment]::GetFolderPath('Desktop')) 'NOVA – Mód választása.lnk'))) {
+        $shortcut = $shell.CreateShortcut($location)
+        $shortcut.TargetPath = $exe
+        $shortcut.Arguments = '--mode-picker'
+        $shortcut.WorkingDirectory = $target
+        $shortcut.IconLocation = (Join-Path $target 'nova.ico') + ',0'
+        $shortcut.Description = 'Konzol, Jarvis vagy Windows mód választása'
+        $shortcut.Save()
+    }
     if ($appBackup -and (Test-Path -LiteralPath $appBackup)) { Remove-Item -LiteralPath $appBackup -Recurse -Force -ErrorAction SilentlyContinue }
     Write-Host 'Kész! Indítsd a NOVA parancsikont. A Konzol mód a Beállításokban és a Gyorsmenüben kapcsolható.' -ForegroundColor Green
+    Write-Host 'Új: módválasztó (Konzol / Jarvis / Windows). Bejelentkezéskor magától megjelenik; most a NOVA – Mód választása parancsikonnal, futó NOVA mellett a Ctrl+Alt+M billentyűkkel nyitható meg.'
     Write-Host 'A játéktár, a beállítások és az automatikus indulás beállítása megmaradt.'
     Write-Host 'A Disney+, HBO Max és YouTube kontrolleres kezeléséhez Microsoft Edge és XInput-kompatibilis kontroller szükséges.'
 } catch {

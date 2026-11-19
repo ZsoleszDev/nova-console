@@ -25,7 +25,17 @@ const defaults = {
   accent: "mono",
   largeText: false,
   wallpaper: "forza",
+  modePicker: true,
+  modePickerSetup: false,
+  modeCountdown: 30,
+  defaultMode: "jarvis",
+  currentMode: "",
+  jarvisPath: "",
+  jarvisWindow: true,
+  consoleGuard: true,
 };
+const modes = ["console", "jarvis", "windows"];
+const modeCountdowns = [10, 15, 20, 30, 45, 60, 90, 120];
 const allowedExtensions = new Set([".exe", ".lnk", ".url"]);
 function validateGame(game) {
   if (
@@ -91,6 +101,17 @@ function cleanSettings(input = {}) {
   settings.accent = defaults.accent;
   if (!["forza", "ori", "plain"].includes(settings.wallpaper))
     settings.wallpaper = defaults.wallpaper;
+  if (!modeCountdowns.includes(settings.modeCountdown))
+    settings.modeCountdown = defaults.modeCountdown;
+  if (!modes.includes(settings.defaultMode))
+    settings.defaultMode = defaults.defaultMode;
+  if (settings.currentMode !== "" && !modes.includes(settings.currentMode))
+    settings.currentMode = "";
+  if (
+    settings.jarvisPath.length > 1000 ||
+    (settings.jarvisPath && !path.win32.isAbsolute(settings.jarvisPath))
+  )
+    settings.jarvisPath = "";
   for (const [key, min, max] of [
     ["controllerDeadzone", 20, 70],
     ["soundVolume", 0, 60],
@@ -168,6 +189,8 @@ function saveState(file, state) {
 }
 module.exports = {
   defaults,
+  modes,
+  modeCountdowns,
   validateGame,
   parseSteamLibraryPaths,
   parseSteamManifest,

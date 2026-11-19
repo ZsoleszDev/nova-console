@@ -1,0 +1,619 @@
+<!doctype html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; font-src file:; img-src data:">
+<title>NOVA · Mód választása</title>
+<style>
+@font-face{font-family:Inter;src:url(../dist/InterVariable.woff2) format("woff2");font-weight:100 900;font-display:swap}
+:root{
+  --bg:#09090a;--text:#f4f4f5;--muted:#a1a1aa;--faint:#6b6b74;
+  --panel:rgba(255,255,255,.045);--panel-hi:rgba(255,255,255,.085);--line:rgba(255,255,255,.09);
+  --console:214,222,240;--jarvis:56,208,255;--windows:86,140,255;
+  --gap:clamp(16px,2vw,40px);
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);color:var(--text);
+  font-family:Inter,"Segoe UI Variable Text","Segoe UI",system-ui,sans-serif;-webkit-font-smoothing:antialiased;user-select:none}
+body{display:grid;grid-template-rows:auto auto 1fr auto;padding:clamp(20px,3.4vh,52px) clamp(24px,4.2vw,88px);cursor:default}
+body.hide-cursor{cursor:none}
+button{font:inherit;color:inherit}
+
+/* Background: one soft light per mode, crossfaded on selection */
+.bg{position:fixed;inset:0;z-index:-1;overflow:hidden;background:radial-gradient(120% 90% at 50% 120%,#000 30%,transparent 70%),var(--bg)}
+.bg i{position:absolute;inset:-20%;opacity:0;transition:opacity .9s ease}
+.bg i[data-mode=console]{background:radial-gradient(48% 42% at 50% 8%,rgba(var(--console),.20),transparent 70%),radial-gradient(30% 30% at 15% 90%,rgba(var(--console),.06),transparent 70%)}
+.bg i[data-mode=jarvis]{background:radial-gradient(48% 42% at 50% 8%,rgba(var(--jarvis),.22),transparent 70%),radial-gradient(30% 30% at 85% 90%,rgba(var(--jarvis),.08),transparent 70%)}
+.bg i[data-mode=windows]{background:radial-gradient(48% 42% at 50% 8%,rgba(var(--windows),.24),transparent 70%),radial-gradient(30% 30% at 15% 90%,rgba(var(--windows),.08),transparent 70%)}
+.bg i.on{opacity:1}
+.bg::after{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);background-size:64px 64px;mask-image:radial-gradient(70% 60% at 50% 40%,#000,transparent 80%)}
+
+/* Top bar */
+header{display:flex;align-items:center;justify-content:space-between}
+.brand{display:flex;align-items:baseline;gap:14px}
+.brand b{font-size:clamp(18px,1.5vw,26px);font-weight:700;letter-spacing:.32em}
+.brand span{color:var(--faint);font-size:clamp(12px,.85vw,15px);letter-spacing:.08em;text-transform:uppercase}
+.clock{text-align:right}
+.clock time{display:block;font-size:clamp(20px,1.7vw,30px);font-weight:500;font-variant-numeric:tabular-nums;letter-spacing:.02em}
+.clock small{color:var(--muted);font-size:clamp(12px,.85vw,15px)}
+
+/* Intro */
+.intro{margin-top:clamp(20px,5vh,72px);text-align:center}
+.intro .hello{color:var(--muted);font-size:clamp(14px,1.1vw,20px)}
+.intro h1{margin:.25em 0 0;font-size:clamp(28px,3.1vw,58px);font-weight:650;letter-spacing:-.025em;line-height:1.08}
+.banner{display:inline-block;margin-top:clamp(14px,2.2vh,26px);min-height:40px;padding:9px 18px;border-radius:999px;background:var(--panel);border:1px solid var(--line);color:var(--muted);font-size:clamp(13px,.95vw,17px)}
+.banner b{color:var(--text);font-weight:600;font-variant-numeric:tabular-nums}
+.banner.hidden{visibility:hidden}
+
+/* Cards */
+.cards{align-self:center;justify-self:center;width:100%;max-width:1520px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--gap);padding:clamp(18px,3vh,40px) 0}
+.card{position:relative;display:flex;flex-direction:column;height:min(54vh,610px);min-height:340px;border-radius:24px;background:var(--panel);border:1px solid var(--line);overflow:hidden;cursor:pointer;
+  transition:transform .35s cubic-bezier(.2,.8,.2,1),background .35s,box-shadow .35s,opacity .35s;outline:none;text-align:left;padding:0}
+.card::before{content:"";position:absolute;inset:0;background:radial-gradient(90% 60% at 50% 0%,rgba(var(--c),.16),transparent 70%);opacity:.55;transition:opacity .35s}
+.card[data-mode=console]{--c:var(--console)}.card[data-mode=jarvis]{--c:var(--jarvis)}.card[data-mode=windows]{--c:var(--windows)}
+.card.sel{background:var(--panel-hi);transform:translateY(-8px) scale(1.035);box-shadow:0 0 0 3px #fff,0 40px 90px -30px rgba(var(--c),.55),0 18px 50px -20px #000}
+.card.sel::before{opacity:1}
+.cards.has-sel .card:not(.sel){opacity:.72}
+.art{position:relative;flex:1 1 52%;min-height:0;display:grid;place-items:center}
+.art svg{width:100%;height:100%;overflow:visible}
+.body{position:relative;padding:clamp(16px,1.6vw,30px) clamp(18px,1.8vw,34px) clamp(18px,1.9vw,34px)}
+.title{display:flex;align-items:center;gap:12px}
+.title svg{width:clamp(22px,1.7vw,30px);height:clamp(22px,1.7vw,30px)}
+.title h2{margin:0;font-size:clamp(24px,2.1vw,40px);font-weight:650;letter-spacing:-.02em}
+.tag{margin:.35em 0 .9em;color:var(--muted);font-size:clamp(14px,1.05vw,19px)}
+ul.facts{list-style:none;margin:0;padding:0;display:grid;gap:clamp(6px,.7vh,10px)}
+ul.facts li{display:flex;align-items:center;gap:10px;color:#d4d4d8;font-size:clamp(13px,.95vw,17px)}
+ul.facts svg{flex:none;width:18px;height:18px;color:rgb(var(--c))}
+ul.facts li.off svg{color:var(--faint)}
+.badge{position:absolute;top:16px;right:16px;z-index:2;padding:6px 12px;border-radius:999px;background:rgba(0,0,0,.45);border:1px solid var(--line);font-size:clamp(11px,.75vw,13px);letter-spacing:.06em;text-transform:uppercase;color:#e4e4e7;backdrop-filter:blur(8px)}
+.badge.hidden{display:none}
+.timer{position:absolute;left:50%;top:clamp(14px,1.4vw,22px);z-index:2;transform:translateX(-50%);display:flex;align-items:center;gap:10px;padding:6px 14px 6px 6px;border-radius:999px;background:rgba(0,0,0,.5);border:1px solid rgba(var(--c),.45);backdrop-filter:blur(8px);font-size:clamp(12px,.85vw,15px);font-variant-numeric:tabular-nums;white-space:nowrap}
+.timer svg{width:30px;height:30px;transform:rotate(-90deg)}
+.timer circle{fill:none;stroke-width:3}
+.timer .track{stroke:rgba(255,255,255,.12)}
+.timer .ring{stroke:rgb(var(--c));stroke-linecap:round;transition:stroke-dashoffset .12s linear}
+.timer.hidden{display:none}
+
+/* Card art */
+.glow{transform-box:fill-box;transform-origin:center}
+.anim .spin-a{animation:spin 26s linear infinite}
+.anim .spin-b{animation:spin 18s linear infinite reverse}
+.anim .spin-c{animation:spin 40s linear infinite}
+.anim .pulse{animation:pulse 3.6s ease-in-out infinite}
+.anim .float{animation:float 5s ease-in-out infinite}
+.anim .card:not(.sel) *{animation-play-state:paused}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes pulse{0%,100%{opacity:.75;transform:scale(1)}50%{opacity:1;transform:scale(1.08)}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* Footer */
+footer{display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap}
+.status{display:flex;align-items:center;gap:18px;color:var(--muted);font-size:clamp(12px,.85vw,15px)}
+.status span{display:inline-flex;align-items:center;gap:8px}
+.status i{width:8px;height:8px;border-radius:50%;background:#52525b}
+.status i.on{background:#e4e4e7;box-shadow:0 0 0 3px rgba(255,255,255,.12)}
+.hints{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.hint{display:inline-flex;align-items:center;gap:9px;padding:7px 14px 7px 7px;border-radius:999px;border:1px solid transparent;background:transparent;color:#d4d4d8;font-size:clamp(12px,.85vw,15px);cursor:pointer}
+.hint:hover{background:var(--panel);border-color:var(--line)}
+.hint kbd{display:inline-grid;place-items:center;min-width:26px;height:26px;padding:0 7px;border-radius:13px;background:#f4f4f5;color:#09090a;font:600 13px/1 Inter,"Segoe UI",sans-serif}
+.hint em{font-style:normal;color:var(--faint);font-size:.9em}
+.hint.hidden{display:none}
+
+/* Overlay panels (progress / settings) */
+.overlay{position:fixed;inset:0;z-index:10;display:grid;place-items:center;background:rgba(5,5,6,.72);backdrop-filter:blur(14px);opacity:0;pointer-events:none;transition:opacity .25s}
+.overlay.open{opacity:1;pointer-events:auto}
+.panel{width:min(720px,92vw);max-height:86vh;overflow:auto;border-radius:24px;background:#141416;border:1px solid var(--line);box-shadow:0 40px 120px -30px #000;padding:clamp(22px,2.2vw,38px)}
+.panel-head{display:flex;align-items:center;gap:16px;margin-bottom:22px}
+.panel-head .icon{flex:none;width:52px;height:52px;border-radius:16px;display:grid;place-items:center;background:rgba(var(--c),.14);color:rgb(var(--c))}
+.panel-head .icon svg{width:26px;height:26px}
+.eyebrow{color:var(--faint);font-size:13px;letter-spacing:.08em;text-transform:uppercase}
+.panel h3{margin:.15em 0 0;font-size:clamp(20px,1.6vw,28px);font-weight:650;letter-spacing:-.01em}
+ol.steps{list-style:none;margin:0;padding:0;display:grid;gap:4px}
+ol.steps li{display:grid;grid-template-columns:28px 1fr auto;align-items:center;gap:12px;padding:12px 14px;border-radius:14px;color:var(--faint);font-size:clamp(14px,1vw,17px)}
+ol.steps li.run{background:var(--panel);color:var(--text)}
+ol.steps li.done,ol.steps li.skip{color:#d4d4d8}
+ol.steps li.error{background:rgba(248,113,113,.08);color:#fecaca}
+ol.steps .note{color:var(--faint);font-size:.9em}
+.dot{width:22px;height:22px;border-radius:50%;border:2px solid #3f3f46;display:grid;place-items:center}
+.dot svg{width:14px;height:14px}
+li.run .dot{border-color:rgba(255,255,255,.18);border-top-color:#fff;animation:spin .8s linear infinite}
+li.done .dot{border-color:#f4f4f5;background:#f4f4f5;color:#09090a}
+li.skip .dot{border-color:#52525b;color:#a1a1aa}
+li.error .dot{border-color:#f87171;color:#f87171}
+.message{margin-top:18px;padding:14px 16px;border-radius:14px;background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.25);color:#fecaca;font-size:15px;line-height:1.45}
+.message.ok{background:var(--panel);border-color:var(--line);color:#e4e4e7}
+.message.hidden{display:none}
+.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}
+.btn{display:inline-flex;align-items:center;gap:10px;padding:10px 18px 10px 10px;border-radius:999px;border:1px solid var(--line);background:var(--panel);cursor:pointer;font-size:15px}
+.btn kbd{display:inline-grid;place-items:center;min-width:26px;height:26px;padding:0 7px;border-radius:13px;background:#f4f4f5;color:#09090a;font:600 13px/1 Inter,"Segoe UI",sans-serif}
+.btn:hover{background:var(--panel-hi)}
+.btn.hidden{display:none}
+
+.rows{display:grid;gap:6px}
+.row{display:grid;grid-template-columns:1fr auto;align-items:center;gap:18px;padding:14px 16px;border-radius:16px;border:1px solid transparent;cursor:pointer}
+.row:hover{background:rgba(255,255,255,.03)}
+.row.sel{background:var(--panel-hi);box-shadow:0 0 0 2px #fff}
+.row .label{font-size:clamp(14px,1.02vw,17px);font-weight:550}
+.row .sub{margin-top:3px;color:var(--faint);font-size:13px;line-height:1.4;overflow-wrap:anywhere}
+.ctl{display:flex;align-items:center;gap:10px;color:#e4e4e7;font-size:15px;white-space:nowrap}
+.switch{width:46px;height:26px;border-radius:13px;background:#3f3f46;position:relative;transition:background .2s}
+.switch::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#a1a1aa;transition:transform .2s,background .2s}
+.switch.on{background:#f4f4f5}.switch.on::after{transform:translateX(20px);background:#09090a}
+.cycle{display:inline-flex;align-items:center;gap:8px}
+.cycle svg{width:16px;height:16px;color:var(--faint)}
+.pill{padding:7px 14px;border-radius:999px;background:var(--panel);border:1px solid var(--line)}
+.row.done-row{justify-content:center;grid-template-columns:1fr;text-align:center}
+
+.toast{position:fixed;left:50%;bottom:clamp(70px,10vh,120px);z-index:20;transform:translate(-50%,12px);max-width:min(720px,90vw);padding:12px 20px;border-radius:14px;background:#f4f4f5;color:#09090a;font-size:15px;font-weight:500;opacity:0;transition:opacity .2s,transform .2s;pointer-events:none}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+@media (max-height:760px){.intro{margin-top:14px}.card{min-height:300px}ul.facts li:nth-child(3){display:none}}
+@media (max-width:1100px){.tag{display:none}}
+</style>
+</head>
+<body>
+<div class="bg"><i data-mode="console"></i><i data-mode="jarvis"></i><i data-mode="windows"></i></div>
+
+<header>
+  <div class="brand"><b>NOVA</b><span>Mód választása</span></div>
+  <div class="clock"><time id="time">--:--</time><small id="date"></small></div>
+</header>
+
+<section class="intro">
+  <div class="hello" id="hello">Szia!</div>
+  <h1>Mire használod most a gépet?</h1>
+  <div class="banner hidden" id="banner"></div>
+</section>
+
+<main class="cards has-sel" id="cards"></main>
+
+<footer>
+  <div class="status" id="status"></div>
+  <div class="hints" id="hints">
+    <button class="hint" data-act="select"><kbd>A</kbd>Kiválasztás <em>Enter</em></button>
+    <button class="hint" data-act="back" id="hint-back"><kbd>B</kbd><span>Vissza</span> <em>Esc</em></button>
+    <button class="hint" data-act="settings"><kbd>Y</kbd>Beállítások <em>S</em></button>
+  </div>
+</footer>
+
+<div class="overlay" id="progress"><div class="panel" id="progress-panel"></div></div>
+<div class="overlay" id="settings"><div class="panel"><div class="panel-head"><div class="icon" style="--c:var(--console)" data-icon="sliders"></div><div><div class="eyebrow">Módválasztó</div><h3>Beállítások</h3></div></div><div class="rows" id="rows"></div></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+const api = window.novaPicker;
+const $ = (id) => document.getElementById(id);
+const ICONS = {
+  gamepad: '<line x1="6" x2="10" y1="11" y2="11"/><line x1="8" x2="8" y1="9" y2="13"/><line x1="15" x2="15.01" y1="12" y2="12"/><line x1="18" x2="18.01" y1="10" y2="10"/><path d="M17.32 5H6.68a4 4 0 0 0-3.978 3.59c-.006.052-.01.101-.017.152C2.604 9.416 2 14.456 2 16a3 3 0 0 0 3 3c1 0 1.5-.5 2-1l1.414-1.414A2 2 0 0 1 9.828 16h4.344a2 2 0 0 1 1.414.586L17 18c.5.5 1 1 2 1a3 3 0 0 0 3-3c0-1.545-.604-6.584-.685-7.258-.007-.05-.011-.1-.017-.151A4 4 0 0 0 17.32 5z"/>',
+  sparkles: '<path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/><path d="M20 3v4"/><path d="M22 5h-4"/><path d="M4 17v2"/><path d="M5 18H3"/>',
+  monitor: '<rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/>',
+  check: '<path d="M20 6 9 17l-5-5"/>',
+  minus: '<path d="M5 12h14"/>',
+  x: '<path d="M18 6 6 18"/><path d="m6 6 12 12"/>',
+  chip: '<rect width="16" height="16" x="4" y="4" rx="2"/><rect width="6" height="6" x="9" y="9" rx="1"/><path d="M15 2v2"/><path d="M15 20v2"/><path d="M2 15h2"/><path d="M2 9h2"/><path d="M20 15h2"/><path d="M20 9h2"/><path d="M9 2v2"/><path d="M9 20v2"/>',
+  sliders: '<line x1="21" x2="14" y1="4" y2="4"/><line x1="10" x2="3" y1="4" y2="4"/><line x1="21" x2="12" y1="12" y2="12"/><line x1="8" x2="3" y1="12" y2="12"/><line x1="21" x2="16" y1="20" y2="20"/><line x1="12" x2="3" y1="20" y2="20"/><line x1="14" x2="14" y1="2" y2="6"/><line x1="8" x2="8" y1="10" y2="14"/><line x1="16" x2="16" y1="18" y2="22"/>',
+  left: '<path d="m15 18-6-6 6-6"/>',
+  right: '<path d="m9 18 6-6-6-6"/>',
+};
+const icon = (name, extra = "") =>
+  `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" ${extra}>${ICONS[name]}</svg>`;
+
+const ART = {
+  console: `<svg viewBox="0 0 400 230" aria-hidden="true">
+    <defs><radialGradient id="g-console" cx="50%" cy="50%" r="50%"><stop offset="0" style="stop-color:rgb(var(--console));stop-opacity:.55"/><stop offset="1" style="stop-color:rgb(var(--console));stop-opacity:0"/></radialGradient></defs>
+    <ellipse class="glow pulse" cx="200" cy="168" rx="190" ry="54" fill="url(#g-console)"/>
+    <g stroke="rgba(255,255,255,.10)" stroke-width="1">
+      <path d="M200 120 L40 230 M200 120 L120 230 M200 120 L200 230 M200 120 L280 230 M200 120 L360 230"/>
+      <path d="M95 192 H305 M60 214 H340 M122 172 H278"/>
+    </g>
+    <g class="float"><g transform="translate(122 34) scale(6.5)" fill="rgba(9,9,10,.65)" stroke="#f4f4f5" stroke-width=".42" stroke-linecap="round" stroke-linejoin="round">${ICONS.gamepad}</g></g>
+  </svg>`,
+  jarvis: `<svg viewBox="0 0 400 230" aria-hidden="true">
+    <defs><radialGradient id="g-jarvis" cx="50%" cy="50%" r="50%"><stop offset="0" style="stop-color:rgb(var(--jarvis));stop-opacity:.9"/><stop offset=".45" style="stop-color:rgb(var(--jarvis));stop-opacity:.25"/><stop offset="1" style="stop-color:rgb(var(--jarvis));stop-opacity:0"/></radialGradient></defs>
+    <circle class="glow pulse" cx="200" cy="118" r="110" fill="url(#g-jarvis)" opacity=".55"/>
+    <g fill="none" stroke-linecap="round">
+      <g class="glow spin-c"><circle cx="200" cy="118" r="98" stroke="rgba(255,255,255,.10)" stroke-width="1"/><circle cx="298" cy="118" r="3.5" fill="rgb(var(--jarvis))" stroke="none"/></g>
+      <g class="glow spin-a"><circle cx="200" cy="118" r="78" stroke="rgba(var(--jarvis),.75)" stroke-width="2" stroke-dasharray="2 10"/></g>
+      <g class="glow spin-b"><circle cx="200" cy="118" r="60" stroke="rgba(255,255,255,.6)" stroke-width="1.6" stroke-dasharray="70 26 12 26"/><circle cx="140" cy="118" r="3" fill="#fff" stroke="none"/></g>
+      <circle cx="200" cy="118" r="42" stroke="rgba(var(--jarvis),.55)" stroke-width="1"/>
+    </g>
+    <circle class="glow pulse" cx="200" cy="118" r="24" fill="rgba(var(--jarvis),.35)"/>
+    <circle cx="200" cy="118" r="13" fill="#eafaff"/>
+  </svg>`,
+  windows: `<svg viewBox="0 0 400 230" aria-hidden="true">
+    <defs><radialGradient id="g-windows" cx="50%" cy="50%" r="50%"><stop offset="0" style="stop-color:rgb(var(--windows));stop-opacity:.6"/><stop offset="1" style="stop-color:rgb(var(--windows));stop-opacity:0"/></radialGradient></defs>
+    <ellipse class="glow pulse" cx="200" cy="120" rx="180" ry="100" fill="url(#g-windows)" opacity=".7"/>
+    <g class="float">
+      <rect x="92" y="32" width="216" height="140" rx="12" fill="rgba(9,9,10,.7)" stroke="#f4f4f5" stroke-width="2.6"/>
+      <rect x="104" y="44" width="192" height="104" rx="6" fill="rgba(var(--windows),.10)"/>
+      <rect x="116" y="56" width="104" height="66" rx="6" fill="rgba(255,255,255,.08)" stroke="rgba(255,255,255,.55)" stroke-width="1.4"/>
+      <rect x="116" y="56" width="104" height="12" rx="6" fill="rgba(255,255,255,.18)"/>
+      <rect x="182" y="82" width="100" height="58" rx="6" fill="rgba(var(--windows),.28)" stroke="rgba(var(--windows),.95)" stroke-width="1.4"/>
+      <rect x="182" y="82" width="100" height="12" rx="6" fill="rgba(var(--windows),.55)"/>
+      <rect x="104" y="152" width="192" height="8" rx="4" fill="rgba(255,255,255,.14)"/>
+      <rect x="190" y="153.5" width="20" height="5" rx="2.5" fill="rgba(255,255,255,.7)"/>
+      <path d="M170 172 L162 200 H238 L230 172" fill="rgba(9,9,10,.7)" stroke="#f4f4f5" stroke-width="2.6" stroke-linejoin="round"/>
+      <path d="M146 202 H254" stroke="#f4f4f5" stroke-width="2.6" stroke-linecap="round"/>
+    </g>
+  </svg>`,
+};
+const MODES = [
+  { id: "console", name: "Konzol", icon: "gamepad", tag: "Játék kontrollerrel, teljes képernyőn",
+    facts: [["check", "NOVA konzol mód"], ["chip", "A videókártya szabad"], ["minus", "Jarvis és Ollama leállítva", true]] },
+  { id: "jarvis", name: "Jarvis", icon: "sparkles", tag: "A gép dolgozik, amíg nem gépezel",
+    facts: [["check", "Ollama és Jarvis fut"], ["check", "Kereskedés és figyelők"], ["chip", "A videókártyát a Jarvis használja"]] },
+  { id: "windows", name: "Windows", icon: "monitor", tag: "Sima asztali használat",
+    facts: [["check", "Windows asztal, NOVA a tálcán"], ["chip", "A videókártya szabad"], ["minus", "Jarvis és Ollama leállítva", true]] },
+];
+const NAMES = { console: "Konzol", jarvis: "Jarvis", windows: "Windows" };
+const TITLES = {
+  console: ["Konzol mód előkészítése", "Konzol mód kész"],
+  jarvis: ["Jarvis mód indítása", "A Jarvis dolgozik"],
+  windows: ["Váltás Windows módra", "Windows mód kész"],
+};
+const COUNTDOWNS = [10, 15, 20, 30, 45, 60, 90, 120];
+const CIRC = 2 * Math.PI * 12;
+
+let state = null, selected = 1, settingsOpen = false, settingsIndex = 0, dismissedJob = 0;
+let countdownEnd = 0, countdownTotal = 1, cancelSent = false, toastTimer = 0, audio = null;
+const openedAt = performance.now();
+
+// ---- Static markup ------------------------------------------------------
+$("cards").innerHTML = MODES.map((m, i) => `
+  <button class="card" data-mode="${m.id}" data-index="${i}" aria-label="${m.name}">
+    <span class="badge hidden">Jelenlegi mód</span>
+    <span class="timer hidden"><svg viewBox="0 0 30 30"><circle class="track" cx="15" cy="15" r="12"/><circle class="ring" cx="15" cy="15" r="12" stroke-dasharray="${CIRC}" stroke-dashoffset="0"/></svg><span class="timer-text"></span></span>
+    <div class="art">${ART[m.id]}</div>
+    <div class="body">
+      <div class="title">${icon(m.icon)}<h2>${m.name}</h2></div>
+      <p class="tag">${m.tag}</p>
+      <ul class="facts">${m.facts.map(([ic, text, off]) => `<li class="${off ? "off" : ""}">${icon(ic)}<span>${text}</span></li>`).join("")}</ul>
+    </div>
+  </button>`).join("");
+document.querySelectorAll("[data-icon]").forEach((el) => (el.innerHTML = icon(el.dataset.icon)));
+const cards = [...document.querySelectorAll(".card")];
+
+// ---- Helpers ------------------------------------------------------------
+function toast(text) {
+  const el = $("toast");
+  el.textContent = text;
+  el.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove("show"), 3600);
+}
+function sound(kind) {
+  if (!state?.sounds) return;
+  try {
+    audio ||= new AudioContext();
+    const volume = Math.max(0, Math.min(60, state.soundVolume ?? 20)) / 60 * 0.12;
+    const notes = kind === "ok" ? [660, 990] : [740];
+    notes.forEach((freq, i) => {
+      const o = audio.createOscillator(), g = audio.createGain(), t = audio.currentTime + i * 0.07;
+      o.type = "sine"; o.frequency.value = freq;
+      g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(volume, t + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.12);
+      o.connect(g).connect(audio.destination); o.start(t); o.stop(t + 0.14);
+    });
+  } catch {}
+}
+async function call(promise) {
+  try {
+    const r = await promise;
+    if (r && r.ok === false) toast(r.error || "A művelet nem sikerült.");
+    return r?.ok ? r.data : undefined;
+  } catch { toast("A művelet nem sikerült."); }
+}
+function userInput() {
+  if (state?.countdown && !cancelSent) {
+    cancelSent = true;
+    countdownEnd = 0;
+    call(api.cancelCountdown());
+  }
+}
+function greet() {
+  const h = new Date().getHours();
+  const part = h >= 5 && h < 9 ? "Jó reggelt" : h >= 9 && h < 18 ? "Szép napot" : "Jó estét";
+  $("hello").textContent = `${part}, ${state?.profile || "Játékos"}!`;
+}
+function tick() {
+  const d = new Date();
+  $("time").textContent = d.toLocaleTimeString("hu-HU", { hour: "2-digit", minute: "2-digit" });
+  $("date").textContent = d.toLocaleDateString("hu-HU", { weekday: "long", month: "long", day: "numeric" });
+}
+
+// ---- Rendering ----------------------------------------------------------
+function jobView() {
+  const job = state?.job;
+  return job && job.id !== dismissedJob ? job : null;
+}
+function render() {
+  if (!state) return;
+  document.body.classList.toggle("anim", state.animations !== false);
+  greet();
+  const mode = MODES[selected].id;
+  document.querySelectorAll(".bg i").forEach((el) => el.classList.toggle("on", el.dataset.mode === mode));
+  cards.forEach((card, i) => {
+    const id = MODES[i].id;
+    card.classList.toggle("sel", i === selected);
+    card.querySelector(".badge").classList.toggle("hidden", state.current !== id);
+    card.querySelector(".timer").classList.toggle("hidden", !(state.countdown && state.countdown.mode === id));
+  });
+  renderBanner();
+  renderStatus();
+  renderProgress();
+  renderSettings();
+  renderHints();
+}
+function renderBanner() {
+  const el = $("banner");
+  if (state.countdown && countdownEnd) {
+    const s = Math.max(0, Math.ceil((countdownEnd - performance.now()) / 1000));
+    el.innerHTML = `Ha nem választasz, <b>${s} mp</b> múlva a <b>${NAMES[state.countdown.mode]}</b> mód indul. Bármely gomb megállítja.`;
+    el.classList.remove("hidden");
+  } else if (state.countdownCancelled && !state.current) {
+    el.innerHTML = "Automatikus indítás leállítva. Válassz egy módot.";
+    el.classList.remove("hidden");
+  } else if (state.current && state.reason === "manual") {
+    el.innerHTML = `Jelenleg: <b>${NAMES[state.current]}</b> mód. Az új választás azonnal érvénybe lép.`;
+    el.classList.remove("hidden");
+  } else el.classList.add("hidden");
+}
+function renderCountdown() {
+  if (!state?.countdown || !countdownEnd) return;
+  const left = Math.max(0, countdownEnd - performance.now());
+  const card = cards[MODES.findIndex((m) => m.id === state.countdown.mode)];
+  if (!card) return;
+  card.querySelector(".ring").style.strokeDashoffset = String(CIRC * (1 - left / countdownTotal));
+  card.querySelector(".timer-text").textContent = left > 0 ? `Automatikus indítás · ${Math.ceil(left / 1000)} mp` : "Indítás…";
+  renderBanner();
+}
+function renderStatus() {
+  const s = state.services || {};
+  const jarvis = { running: "fut", standby: "készenlétben", starting: "indul", stopped: "leállítva" }[s.jarvis];
+  const parts = [];
+  if (s.ollama !== null && s.ollama !== undefined) parts.push(`<span><i class="${s.ollama ? "on" : ""}"></i>Ollama: ${s.ollama ? "fut" : "leállítva"}</span>`);
+  if (jarvis) parts.push(`<span><i class="${s.jarvis !== "stopped" ? "on" : ""}"></i>Jarvis: ${jarvis}</span>`);
+  parts.push(`<span>Visszahívás: ${state.hotkey} · View + Menü 3 mp</span>`);
+  $("status").innerHTML = parts.join("");
+}
+function stepIcon(st) {
+  return st === "done" ? icon("check") : st === "skip" ? icon("minus") : st === "error" ? icon("x") : "";
+}
+function renderProgress() {
+  const job = jobView();
+  const box = $("progress");
+  box.classList.toggle("open", !!job && !settingsOpen);
+  if (!job) return;
+  const m = MODES.find((x) => x.id === job.mode);
+  const running = !job.done && !job.error;
+  $("progress-panel").innerHTML = `
+    <div class="panel-head" style="--c:var(--${m.id})"><div class="icon">${icon(job.done ? "check" : m.icon)}</div>
+      <div><div class="eyebrow">${NAMES[m.id]} mód</div><h3>${TITLES[m.id][job.done ? 1 : 0]}</h3></div></div>
+    <ol class="steps">${job.steps.map((s) => `<li class="${s.state}"><span class="dot">${stepIcon(s.state)}</span><span>${s.label}</span><span class="note">${s.note || ""}</span></li>`).join("")}</ol>
+    <div class="message ${job.error ? "" : job.done ? "ok" : "hidden"}">${job.error ? escapeHtml(job.error) : "Kész, a választásod érvényben van."}</div>
+    <div class="actions">
+      <button class="btn ${job.error ? "" : "hidden"}" data-act="select"><kbd>A</kbd>Újra</button>
+      <button class="btn ${job.done ? "hidden" : ""}" data-act="back"><kbd>B</kbd>${running ? "Másik mód" : "Vissza"}</button>
+      <button class="btn ${job.error ? "" : "hidden"}" data-act="settings"><kbd>Y</kbd>Beállítások</button>
+    </div>`;
+}
+function escapeHtml(text) {
+  return String(text).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+}
+function settingRows() {
+  const s = state.settings, st = state.startup || {};
+  const own = [st.ollama && "Ollama", st.jarvis && "Jarvis"].filter(Boolean);
+  const saved = (st.saved || []).length > 0;
+  return [
+    { id: "modePicker", type: "toggle", label: "Módválasztó bekapcsoláskor", sub: "A gép indulásakor (bejelentkezés után) ez a képernyő fogad.", on: s.modePicker },
+    { id: "defaultMode", type: "cycle", label: "Ha nem választasz", sub: "Ez a mód indul a visszaszámlálás végén.", value: NAMES[s.defaultMode] },
+    { id: "modeCountdown", type: "cycle", label: "Visszaszámlálás", sub: "Ennyi ideig vár a választásodra.", value: `${s.modeCountdown} mp` },
+    { id: "jarvisPath", type: "action", label: "Jarvis mappája", sub: state.jarvisDir || "Nincs megadva: válaszd ki a mappát, amiben a jarvis.py van.", value: "Tallózás…" },
+    { id: "jarvisWindow", type: "toggle", label: "Jarvis ablak megnyitása", sub: "Jarvis módban a Jarvis saját ablaka is megnyílik.", on: s.jarvisWindow },
+    { id: "consoleGuard", type: "toggle", label: "Asztal elrejtése konzol módban", sub: "Ha konzol módban előkerül a Windows asztala, a NOVA pár másodperc múlva visszajön.", on: s.consoleGuard },
+    own.length
+      ? { id: "takeover", type: "action", label: "Saját automatikus indítás", sub: `Az Indítópultból magától indul: ${own.join(", ")}. Javasolt, hogy csak a NOVA indítsa őket.`, value: "A NOVA vegye át" }
+      : saved
+        ? { id: "restore", type: "action", label: "Saját automatikus indítás", sub: "A NOVA kezeli az Ollama és a Jarvis indítását. A régi Indítópult-bejegyzések elmentve.", value: "Visszaállítás" }
+        : { id: "startup-none", type: "info", label: "Saját automatikus indítás", sub: "Az Ollama és a Jarvis nem indul magától, a NOVA kezeli őket.", value: "" },
+    { id: "done", type: "done", label: "Kész" },
+  ];
+}
+function renderSettings() {
+  $("settings").classList.toggle("open", settingsOpen);
+  if (!settingsOpen) return;
+  const rows = settingRows();
+  settingsIndex = Math.max(0, Math.min(rows.length - 1, settingsIndex));
+  $("rows").innerHTML = rows.map((r, i) => {
+    if (r.type === "done") return `<div class="row done-row ${i === settingsIndex ? "sel" : ""}" data-row="${i}"><div class="label">Kész</div></div>`;
+    const ctl = r.type === "toggle" ? `<span class="switch ${r.on ? "on" : ""}"></span>`
+      : r.type === "cycle" ? `<span class="cycle">${icon("left")}<span class="pill">${r.value}</span>${icon("right")}</span>`
+      : r.type === "action" ? `<span class="pill">${r.value}</span>` : "";
+    return `<div class="row ${i === settingsIndex ? "sel" : ""}" data-row="${i}"><div><div class="label">${r.label}</div><div class="sub">${escapeHtml(r.sub)}</div></div><div class="ctl">${ctl}</div></div>`;
+  }).join("");
+  $("rows").querySelector(".row.sel")?.scrollIntoView({ block: "nearest" });
+}
+function renderHints() {
+  const job = jobView();
+  const back = $("hint-back").querySelector("span");
+  if (settingsOpen) back.textContent = "Bezárás";
+  else if (job) back.textContent = job.done ? "Vissza" : job.error ? "Vissza" : "Másik mód";
+  else if (state.countdown) back.textContent = "Visszaszámlálás leállítása";
+  else back.textContent = state.reason === "manual" ? "Bezárás" : "Vissza";
+}
+
+// ---- Actions ------------------------------------------------------------
+function choose(index) {
+  selected = index;
+  render();
+  sound("ok");
+  dismissedJob = 0;
+  call(api.choose(MODES[index].id));
+}
+function settingsAction(action) {
+  const rows = settingRows();
+  const row = rows[settingsIndex];
+  if (action === "up" || action === "down") {
+    settingsIndex = (settingsIndex + (action === "up" ? -1 : 1) + rows.length) % rows.length;
+    sound("move");
+    return renderSettings();
+  }
+  if (action === "back" || action === "settings") {
+    settingsOpen = false;
+    return render();
+  }
+  const s = state.settings;
+  if ((action === "left" || action === "right") && row.type === "cycle") {
+    const step = action === "left" ? -1 : 1;
+    if (row.id === "defaultMode") {
+      const ids = MODES.map((m) => m.id);
+      return call(api.save({ defaultMode: ids[(ids.indexOf(s.defaultMode) + step + ids.length) % ids.length] }));
+    }
+    const i = COUNTDOWNS.indexOf(s.modeCountdown);
+    return call(api.save({ modeCountdown: COUNTDOWNS[Math.max(0, Math.min(COUNTDOWNS.length - 1, (i < 0 ? 3 : i) + step))] }));
+  }
+  if (action !== "select") return;
+  if (row.type === "toggle") return call(api.save({ [row.id]: !row.on }));
+  if (row.type === "cycle") return settingsAction("right");
+  if (row.id === "jarvisPath") return call(api.browseJarvis()).then((dir) => dir && toast("Jarvis mappa beállítva."));
+  if (row.id === "takeover") return call(api.startupTakeover()).then((r) => r && toast("Az Ollama és a Jarvis mostantól csak a NOVA-val indul."));
+  if (row.id === "restore") return call(api.startupRestore()).then((r) => r && toast("A korábbi Indítópult-bejegyzések visszaállítva."));
+  if (row.type === "done") { settingsOpen = false; render(); }
+}
+function progressAction(action, job) {
+  if (job.done) return;
+  if (action === "back") { dismissedJob = job.id; return render(); }
+  if (action === "settings" && job.error) { settingsOpen = true; settingsIndex = 0; return render(); }
+  if (action === "select" && job.error) call(api.retry());
+}
+function cardAction(action) {
+  if (action === "left" || action === "up") { if (selected > 0) { selected--; sound("move"); } return render(); }
+  if (action === "right" || action === "down") { if (selected < 2) { selected++; sound("move"); } return render(); }
+  if (action === "select") return choose(selected);
+  if (action === "settings") { settingsOpen = true; settingsIndex = 0; return render(); }
+  if (action === "back") {
+    if (state.countdown) return;
+    if (state.reason === "manual") return call(api.close());
+    toast("Válassz egy módot a folytatáshoz.");
+  }
+}
+function action(name) {
+  if (!state) return;
+  const hadCountdown = !!state.countdown && !cancelSent;
+  userInput();
+  if (hadCountdown && name === "back") return render();
+  if (settingsOpen) return settingsAction(name);
+  const job = jobView();
+  if (job) return progressAction(name, job);
+  cardAction(name);
+}
+
+// ---- Keyboard / mouse ---------------------------------------------------
+const KEYS = { ArrowLeft: "left", ArrowRight: "right", ArrowUp: "up", ArrowDown: "down", Enter: "select", " ": "select",
+  Escape: "back", Backspace: "back", s: "settings", S: "settings", y: "settings", Y: "settings", F2: "settings" };
+addEventListener("keydown", (e) => {
+  if (e.altKey || e.ctrlKey || e.metaKey) return;
+  document.body.classList.add("hide-cursor");
+  let name = KEYS[e.key];
+  if (e.key === "Tab") name = e.shiftKey ? "left" : "right";
+  if (/^[1-3]$/.test(e.key) && !settingsOpen && !jobView()) {
+    e.preventDefault(); userInput(); selected = Number(e.key) - 1; sound("move"); return render();
+  }
+  if (!name) return;
+  e.preventDefault();
+  if (e.repeat && (name === "select" || name === "back" || name === "settings")) return;
+  if (performance.now() - openedAt < 300) return;
+  action(name);
+});
+let pointerTravel = 0, lastPointer = null;
+addEventListener("pointermove", (e) => {
+  if (lastPointer) {
+    const d = Math.hypot(e.clientX - lastPointer[0], e.clientY - lastPointer[1]);
+    pointerTravel += d;
+    if (d > 0) document.body.classList.remove("hide-cursor");
+  }
+  lastPointer = [e.clientX, e.clientY];
+  if (pointerTravel > 24) userInput();
+});
+addEventListener("pointerdown", userInput);
+addEventListener("wheel", userInput, { passive: true });
+cards.forEach((card, i) => {
+  card.addEventListener("pointermove", () => {
+    if (pointerTravel > 24 && selected !== i && !settingsOpen && !jobView()) { selected = i; sound("move"); render(); }
+  });
+  card.addEventListener("click", (e) => { e.preventDefault(); if (!settingsOpen && !jobView()) choose(i); });
+});
+document.addEventListener("click", (e) => {
+  const act = e.target.closest("[data-act]")?.dataset.act;
+  if (act) { e.preventDefault(); action(act); return; }
+  const row = e.target.closest("[data-row]");
+  if (row && settingsOpen) { settingsIndex = Number(row.dataset.row); settingsAction("select"); }
+});
+$("settings").addEventListener("click", (e) => { if (e.target === $("settings")) { settingsOpen = false; render(); } });
+
+// ---- Controller (XInput through the Gamepad API) -----------------------
+const pads = new Map();
+let held = "", nextRepeat = 0;
+function pollPads(t) {
+  const list = navigator.getGamepads ? navigator.getGamepads() : [];
+  let dir = "";
+  for (const gp of list) {
+    if (!gp || !gp.connected) continue;
+    const pressed = gp.buttons.map((b) => b.pressed || b.value > 0.5);
+    const ax = gp.axes[0] || 0, ay = gp.axes[1] || 0;
+    const d = pressed[12] || ay < -0.55 ? "up" : pressed[13] || ay > 0.55 ? "down" : pressed[14] || ax < -0.55 ? "left" : pressed[15] || ax > 0.55 ? "right" : "";
+    let pad = pads.get(gp.index);
+    if (!pad) {
+      // Buttons still held from before the picker opened must be released first.
+      const early = t - openedAt < 1200;
+      pad = { buttons: early ? pressed.slice() : pressed.map(() => false), armed: !early || !d };
+      pads.set(gp.index, pad);
+    }
+    if (!d) pad.armed = true;
+    const edge = (i) => pressed[i] && !pad.buttons[i];
+    if (t - openedAt > 350) {
+      if (edge(0)) action("select");
+      if (edge(1)) action("back");
+      if (edge(3)) action("settings");
+      if (edge(4)) action("left");
+      if (edge(5)) action("right");
+      if (d && pad.armed && !dir) dir = d;
+    }
+    pad.buttons = pressed;
+  }
+  if (!dir) held = "";
+  else if (dir !== held || t >= nextRepeat) {
+    document.body.classList.add("hide-cursor");
+    action(dir);
+    nextRepeat = t + (dir !== held ? 380 : 170);
+    held = dir;
+  }
+  requestAnimationFrame(pollPads);
+}
+requestAnimationFrame(pollPads);
+
+// ---- State --------------------------------------------------------------
+function apply(next) {
+  const first = !state;
+  if (next.countdown && !cancelSent) {
+    countdownEnd = performance.now() + next.countdown.remaining;
+    countdownTotal = Math.max(1, next.countdown.total);
+  } else if (!next.countdown) countdownEnd = 0;
+  state = next;
+  if (first) {
+    const want = next.preselect || next.current || next.settings.defaultMode;
+    const i = MODES.findIndex((m) => m.id === want);
+    if (i >= 0) selected = i;
+  }
+  render();
+  renderCountdown();
+}
+api.onState(apply);
+call(api.getState()).then((s) => s && apply(s));
+tick();
+setInterval(tick, 1000);
+setInterval(renderCountdown, 100);
+</script>
+</body>
+</html>

@@ -1,4 +1,62 @@
-﻿NOVA 1.10.2 – VISSZATÉRÉS JÁTÉKBÓL
+﻿NOVA 1.11.0 – MÓDVÁLASZTÓ: KONZOL, JARVIS, WINDOWS
+
+Bejelentkezéskor a NOVA egy teljes képernyős módválasztóval indul. Egérrel,
+billentyűzettel és kontrollerrel is kezelhető. A választás azonnal érvénybe lép.
+
+KONZOL: a Jarvis és az Ollama leáll, a videókártya felszabadul, a NOVA konzol
+módban, teljes képernyőn fut. Ha konzol módban a Windows asztala kerül előtérbe
+(például Win+D), a NOVA kb. 3 másodperc múlva visszajön. Játék és NOVA-ból
+nyitott média közben ez nem lép közbe. A Gyorsmenü és a tálcamenü Windows mód
+pontja, valamint az F11 konzol módban a módválasztót nyitja meg, nem az asztalt.
+A Windows saját Alt+Tab, Win és Ctrl+Alt+Delete lehetőségei továbbra is működnek.
+JARVIS: elindul az Ollama (ha még nem fut), utána a Jarvis a saját .venv
+környezetéből. A NOVA a tálcára kerül, a Jarvis ablaka megnyílik (kikapcsolható).
+A Jarvis a saját beállításai szerint dolgozik: kereskedés, figyelők.
+WINDOWS: a Jarvis és az Ollama leáll, a videókártya felszabadul, a NOVA a tálcára
+kerül.
+
+HA NEM VÁLASZTASZ
+30 másodperc után a Jarvis mód indul, így távoli bekapcsolás után is dolgozik a
+gép. Bármely gomb, kattintás vagy egérmozdítás leállítja a visszaszámlálást.
+A várakozás (10–120 mp) és az alapmód a módválasztó Beállításaiban (Y / S)
+állítható. Ha később mást választasz, az lép érvénybe; a még futó váltás a
+következő lépésnél megáll. Távoli bekapcsoláshoz a Windowsnak automatikusan be
+kell lépnie a fő fiókodba: a bejelentkezési képernyőn a NOVA még nem fut.
+
+VISSZAHÍVÁS
+Ctrl+Alt+M; kontrolleren View + Menü együtt 3 másodpercig; tálcaikon > Mód
+választása; vagy a NOVA – Mód választása parancsikon (Asztal, Start menü).
+Konzol módban a View + Menü 1 mp után a megszokott játékpanelt / főmenüt nyitja,
+tovább tartva 3 mp-nél a módválasztót.
+A választóban D-pad / bal kar / nyilak / LB, RB: léptetés. A / Enter / kattintás:
+indítás. B / Esc: vissza; indításkor a visszaszámlálás leállítása. Y / S:
+beállítások. 1–3: kártya kijelölése. Indításkor a választó nem zárható be
+választás nélkül, később a B bezárja, és minden marad a régiben.
+
+A JARVIS ÉS AZ OLLAMA KEZELÉSE
+A Jarvist a NOVA a Jarvis saját helyi leállítási kérésével állítja le. Ez minden
+betöltött modellt kiürít a videókártyáról. Ha 12 másodpercen belül nem áll le,
+a NOVA a Jarvis folyamatfáját állítja le, utána bezárja a „Jarvis” című
+böngészőablakot. Az Ollamát a tálcaalkalmazásával együtt állítja le
+(ollama app.exe, ollama.exe, ollama_llama_server.exe). Indításkor a
+%LOCALAPPDATA%\Programs\Ollama\ollama app.exe-t indítja, és megvárja a választ.
+A Jarvis mappáját a NOVA a Jarvis Indítópult-parancsikonjából vagy a szokásos
+helyekről (például %USERPROFILE%\jarvis) keresi meg, és megjegyzi. A
+Beállításokban kézzel is kiválaszthatod. Kell hozzá a jarvis.py és a
+.venv\Scripts\pythonw.exe. A Jarvis naplója: %LOCALAPPDATA%\Jarvis\naplo.txt.
+Saját automatikus indítás: ha az Ollama vagy a Jarvis a Windows Indítópultjából
+magától indul, a Beállítások „A NOVA vegye át” gombja a parancsikonjukat a
+%APPDATA%\NOVA\startup-backup mappába teszi (Visszaállítás gombbal visszakerül).
+Amíg ezek az Indítópultban vannak, Konzol és Windows módban a NOVA a bejelentkezés
+utáni első 3 percben a később magától elinduló Ollamát / Jarvist is leállítja.
+
+ELSŐ INDÍTÁS
+Az 1.11.0 első indításakor a NOVA bekapcsolja a Windowszal indulást, mert a
+módválasztó bejelentkezéskor jelenik meg. A NOVA beállításaiban ez kikapcsolható;
+a módválasztó a saját Beállításai között külön is kikapcsolható.
+
+
+NOVA 1.10.2 – VISSZATÉRÉS JÁTÉKBÓL
 
 A felismert, NOVA-ból indított játék bezárásakor automatikusan visszatér a NOVA. Ez konzol módban és akkor is működik, ha induláskor a NOVA magát tette a tálcára. A játékidőmérés külön kapcsolható. A Windows módra váltás lemondja az aktuális játék utáni visszahívást.
 
