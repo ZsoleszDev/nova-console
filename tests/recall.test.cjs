@@ -44,22 +44,22 @@ test("the watcher is compiled once into a windowless program and started with NO
   assert.equal(t.runs.length, 1);
   assert.match(t.runs[0].args.at(-1), /-OutputType WindowsApplication/);
   assert.ok(!t.runs[0].args.at(-1).includes('"'));
-  assert.ok(t.runs[0].env.NOVA_RECALL_SRC.endsWith(path.join("windows", "Recall.cs")));
+  assert.deepEqual(t.runs[0].env.NOVA_RECALL_SRC.split(";").map((f) => path.basename(f)), ["Recall.cs", "CursorHide.cs"]);
   assert.equal(await t.recall.start({ parsec: true }), true);
   const started = t.spawner.calls[0];
   assert.equal(started.file, exe);
-  assert.deepEqual(started.args, ["C:\\NOVA\\NOVA.exe", "4242", "1", "C:\\naplo.txt"]);
+  assert.deepEqual(started.args, ["C:\\NOVA\\NOVA.exe", "4242", "1", "C:\\naplo.txt", "1"]);
   assert.equal(started.options.detached, true);
   assert.deepEqual(t.logs, ["figyelő indítva"]);
 });
 
 test("without the compiled program the PowerShell watcher starts, with the log file", async () => {
   const t = setup({ build: false });
-  assert.equal(await t.recall.start({ parsec: false }), true);
+  assert.equal(await t.recall.start({ parsec: false, cursor: false }), true);
   const started = t.spawner.calls[0];
   assert.equal(started.file, "powershell.exe");
   assert.ok(started.args.includes("-File"));
-  assert.deepEqual(started.args.slice(-8), ["-NovaExe", "C:\\NOVA\\NOVA.exe", "-NovaPid", "4242", "-Parsec", "0", "-LogFile", "C:\\naplo.txt"]);
+  assert.deepEqual(started.args.slice(-10), ["-NovaExe", "C:\\NOVA\\NOVA.exe", "-NovaPid", "4242", "-Parsec", "0", "-LogFile", "C:\\naplo.txt", "-Cursor", "0"]);
   assert.deepEqual(t.logs, ["figyelő fordítása nem sikerült: Add-Type failed", "figyelő indítva (PowerShell)"]);
 });
 

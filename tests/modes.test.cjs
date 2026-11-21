@@ -54,3 +54,8 @@ test("NOVA closes outside Konzol mode by default; the picker can switch it", () 
   assert.equal(defaults.quitOutsideConsole, true);
   assert.deepEqual(validModePatch({ quitOutsideConsole: false }), { quitOutsideConsole: false });
 });
+
+test("the pointer hides with the controller by default; the picker can switch it", () => {
+  assert.equal(defaults.hideCursor, true);
+  assert.deepEqual(validModePatch({ hideCursor: false }), { hideCursor: false });
+});

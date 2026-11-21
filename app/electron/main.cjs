@@ -28,6 +28,7 @@ const { createModeManager } = require("./mode-manager.cjs");
 const { createServices } = require("./services.cjs");
 const { createParsecWatch, parsecLogPaths } = require("./parsec-watch.cjs");
 const { createRecall } = require("./recall.cjs");
+const { createEdgeProfile } = require("./edge-profile.cjs");
 protocol.registerSchemesAsPrivileged([
   {
     scheme: "nova-art",
@@ -193,6 +194,7 @@ function setup() {
       "hideTaskbar",
       "quitOutsideConsole",
       "parsecPicker",
+      "hideCursor",
     ])
       if (k in patch) {
         if (typeof patch[k] !== "boolean")
@@ -239,7 +241,7 @@ function setup() {
         next[key] = patch[key];
       }
     if ("mediaPlayback" in patch) {
-      if (!["compatible", "software", "quality"].includes(patch.mediaPlayback))
+      if (!["parsec", "gpu", "quality"].includes(patch.mediaPlayback))
         throw Error("Ismeretlen lejátszási mód.");
       next.mediaPlayback = patch.mediaPlayback;
     }
@@ -562,7 +564,10 @@ function quitAfterMode() {
     quitting = true;
     startupLog(`kilépés: ${state.settings.currentMode === "jarvis" ? "Jarvis" : "Windows"} mód`);
     recall
-      .start({ parsec: state.settings.parsecPicker !== false })
+      .start({
+        parsec: state.settings.parsecPicker !== false,
+        cursor: state.settings.hideCursor !== false,
+      })
       .catch(() => false)
       .finally(() => {
         // The picker was called back meanwhile: NOVA stays, the watcher steps aside.
@@ -787,10 +792,18 @@ if (!app.requestSingleInstanceLock()) {
       },
       onAudio: (audio) => guide?.audio(audio),
     });
+    const edgeProfile = createEdgeProfile({
+      run,
+      log: (text) => startupLog("média: " + text),
+      enabled: isWindows,
+    });
     media = createMediaIntegration({
       app,
       mainWindow: win,
       getSettings: () => state.settings,
+      prepareBrowser: (profile, playback) => edgeProfile.prepare(profile, playback),
+      verifyBrowser: (profile, playback, expected) =>
+        edgeProfile.verify(profile, playback, expected),
       onControlActive: (value) => {
         if (value) guide?.hide();
         consoleMode.setMediaActive(value);

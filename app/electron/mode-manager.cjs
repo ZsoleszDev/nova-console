@@ -36,6 +36,7 @@ function validModePatch(patch) {
     "hideTaskbar",
     "quitOutsideConsole",
     "parsecPicker",
+    "hideCursor",
   ])
     if (key in patch) {
       if (typeof patch[key] !== "boolean") throw Error("Érvénytelen beállítás.");
@@ -47,7 +48,7 @@ function validModePatch(patch) {
     next.modeCountdown = patch.modeCountdown;
   }
   if ("mediaPlayback" in patch) {
-    if (!["compatible", "software", "quality"].includes(patch.mediaPlayback))
+    if (!["parsec", "gpu", "quality"].includes(patch.mediaPlayback))
       throw Error("Ismeretlen lejátszási mód.");
     next.mediaPlayback = patch.mediaPlayback;
   }
@@ -144,7 +145,8 @@ function createModeManager({
         hideTaskbar: s.hideTaskbar !== false,
         quitOutsideConsole: s.quitOutsideConsole !== false,
         parsecPicker: s.parsecPicker !== false,
-        mediaPlayback: s.mediaPlayback || "compatible",
+        hideCursor: s.hideCursor !== false,
+        mediaPlayback: s.mediaPlayback || "parsec",
         jarvisPath: s.jarvisPath || "",
       },
       jarvisDir,

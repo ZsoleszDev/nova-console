@@ -88,7 +88,7 @@ namespace Nova {
   static bool PickerCombo,PickerLatched,GuardEnabled;
   static long GuardSince;
   static int Deadzone=35,Repeat=160,GuideEpoch;
-  static long InputGuard,LastPadReport,LastAudio,LastPadActivity,LastIdleReport,RumbleUntil,LastRumble;
+  static long InputGuard,LastPadReport,LastAudio,LastPadActivity,LastIdleReport,RumbleUntil,LastRumble,PadInputAt=-1;
   static uint RumbleIndex; static bool Feedback;
   static void StopRumble(){if(RumbleUntil==0)return;Vibration v=new Vibration();try{XSet(RumbleIndex,ref v);}catch{}RumbleUntil=0;}
   static void Pulse(){long now=Clock.ElapsedMilliseconds;if(!Feedback||!Connected||now-LastRumble<100||Suspended)return;StopRumble();Vibration v=new Vibration();v.Left=3500;v.Right=1800;RumbleIndex=SelectedIndex;try{XSet(RumbleIndex,ref v);RumbleUntil=now+30;LastRumble=now;}catch{}}
@@ -159,7 +159,7 @@ namespace Nova {
   static void InputAction(string action,IntPtr target){Pulse();if(OwnDialog(target)){DialogAction(action,target);return;}Emit("{\"type\":\"input\",\"surface\":\""+(target==Guide?"guide":"dashboard")+"\",\"epoch\":"+(target==Guide?GuideEpoch:0)+",\"action\":\""+action+"\"}");}
   static void Controller(long now){
    PadState state=new PadState();bool connected=false;uint selected=0;
-   for(uint offset=0;offset<4;offset++){uint index=(SelectedIndex+offset)%4;PadState candidate;if(XInput(index,out candidate)==0){Pad cp=candidate.Pad;int limit=(int)(32767*Deadzone/100.0);if(cp.Buttons!=0||cp.LT>30||cp.RT>30||Math.Abs((int)cp.LX)>limit||Math.Abs((int)cp.LY)>limit||Math.Abs((int)cp.RX)>limit||Math.Abs((int)cp.RY)>limit)LastPadActivity=now;if(!connected){state=candidate;selected=index;connected=true;}if(candidate.Pad.Buttons!=0||Math.Abs((int)candidate.Pad.LX)>20000||Math.Abs((int)candidate.Pad.LY)>20000){state=candidate;selected=index;break;}}}
+   for(uint offset=0;offset<4;offset++){uint index=(SelectedIndex+offset)%4;PadState candidate;if(XInput(index,out candidate)==0){Pad cp=candidate.Pad;int limit=(int)(32767*Deadzone/100.0);if(cp.Buttons!=0||cp.LT>30||cp.RT>30||Math.Abs((int)cp.LX)>limit||Math.Abs((int)cp.LY)>limit||Math.Abs((int)cp.RX)>limit||Math.Abs((int)cp.RY)>limit){LastPadActivity=now;PadInputAt=now;}if(!connected){state=candidate;selected=index;connected=true;}if(candidate.Pad.Buttons!=0||Math.Abs((int)candidate.Pad.LX)>20000||Math.Abs((int)candidate.Pad.LY)>20000){state=candidate;selected=index;break;}}}
    IntPtr target=GetForegroundWindow();bool own=Pid(target)==NovaPid&&(target==Dashboard||target==Guide||OwnDialog(target));
    if(RumbleUntil>0&&(now>=RumbleUntil||!own||Suspended))StopRumble();
    if(now-LastIdleReport>=200){Emit("{\"type\":\"idle\",\"idleMs\":"+Math.Max(0,now-LastPadActivity)+"}");LastIdleReport=now;}
@@ -223,6 +223,7 @@ namespace Nova {
    if(command=="guide-hide"){Guide=IntPtr.Zero;DesktopOpen=GetForegroundWindow()==Dashboard;return;}
    if(command=="picker|1"||command=="picker|0"){PickerCombo=command=="picker|1";if(!PickerCombo)PickerLatched=false;return;}
    if(command=="guard|1"||command=="guard|0"){GuardEnabled=command=="guard|1";GuardSince=0;return;}
+   if(command=="cursor|1"||command=="cursor|0"){CursorHide.Enabled=command=="cursor|1";if(!CursorHide.Enabled&&CursorHide.Hidden)CursorHide.Show();return;}
    if(command=="taskbar|1"||command=="taskbar|0"){TaskbarHidden=command=="taskbar|1";if(TaskbarHidden)HideTaskbars();else RestoreTaskbars();return;}
    if(command=="suspend|1"||command=="suspend|0"){Suspended=command=="suspend|1";StopRumble();LastPadActivity=Clock.ElapsedMilliseconds;PadSeeded=false;return;}
    string[] config=command.Split('|');
@@ -310,12 +311,14 @@ namespace Nova {
    if(!IsWindow(Dashboard)||Pid(Dashboard)!=NovaPid)return;
    Console.InputEncoding=Encoding.UTF8;Console.OutputEncoding=Encoding.UTF8;Clock=Stopwatch.StartNew();
    Task.Run(delegate{try{string line;while((line=Console.ReadLine())!=null)Queue.Enqueue(line);}catch{}Queue.Enqueue("stop");});
+   // A pointer left hidden by a helper that was stopped from outside comes back.
+   CursorHide.Show();
    Emit("{\"type\":\"ready\"}");long lastScan=0;
    try{while(!Stopping&&IsWindow(Dashboard)){
     string command;while(Queue.TryDequeue(out command))try{Command(command);}catch{}
-    long now=Clock.ElapsedMilliseconds;Controller(now);
+    long now=Clock.ElapsedMilliseconds;Controller(now);CursorHide.Update(now,PadInputAt);
     if(now-lastScan>=500){Observe();Guard(now);if(TaskbarHidden)HideTaskbars();lastScan=now;}Thread.Sleep(20);
-   }}catch{Emit("{\"type\":\"error\",\"message\":\"Az automatikus visszatérés megállt. A Ctrl+Alt+N gyorsbillentyűvel visszahívhatod a NOVA-t.\"}");}finally{StopRumble();RestoreTaskbars();}
+   }}catch{Emit("{\"type\":\"error\",\"message\":\"Az automatikus visszatérés megállt. A Ctrl+Alt+N gyorsbillentyűvel visszahívhatod a NOVA-t.\"}");}finally{StopRumble();RestoreTaskbars();CursorHide.Show();}
   }
  }
 }

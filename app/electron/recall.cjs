@@ -7,7 +7,7 @@ const pathDefault = require("node:path");
 
 const BUILD_SCRIPT =
   "$ErrorActionPreference='Stop';" +
-  "Add-Type -Path $env:NOVA_RECALL_SRC -ReferencedAssemblies @('System.dll','System.Core.dll') " +
+  "Add-Type -Path ($env:NOVA_RECALL_SRC -split ';') -ReferencedAssemblies @('System.dll','System.Core.dll') " +
   "-OutputAssembly $env:NOVA_RECALL_EXE -OutputType WindowsApplication";
 
 function createRecall({
@@ -24,16 +24,14 @@ function createRecall({
   sourceDir = path.join(__dirname, "windows"),
   wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms)),
 }) {
-  const source = path.join(sourceDir, "Recall.cs");
+  const sources = ["Recall.cs", "CursorHide.cs"].map((name) => path.join(sourceDir, name));
   const dir = path.join(dataDir, "figyelo");
   let building = null;
 
   function exePath() {
-    const hash = crypto
-      .createHash("sha256")
-      .update(fs.readFileSync(source))
-      .digest("hex")
-      .slice(0, 12);
+    const digest = crypto.createHash("sha256");
+    for (const file of sources) digest.update(fs.readFileSync(file));
+    const hash = digest.digest("hex").slice(0, 12);
     return path.join(dir, `nova-figyelo-${hash}.exe`);
   }
 
@@ -57,7 +55,7 @@ function createRecall({
           {
             windowsHide: true,
             timeout: 90000,
-            env: { ...process.env, NOVA_RECALL_SRC: source, NOVA_RECALL_EXE: exe },
+            env: { ...process.env, NOVA_RECALL_SRC: sources.join(";"), NOVA_RECALL_EXE: exe },
           },
         );
       } catch (e) {
@@ -95,10 +93,11 @@ function createRecall({
   }
 
   // Started just before NOVA quits; it waits until NOVA is gone.
-  async function start({ parsec }) {
+  async function start({ parsec, cursor = true }) {
     if (!enabled) return false;
     const exe = await Promise.race([build(), wait(15000).then(() => null)]);
-    if (exe && (await launch(exe, [novaExe, String(novaPid), parsec ? "1" : "0", logFile]))) {
+    const flags = [parsec ? "1" : "0", logFile, cursor ? "1" : "0"];
+    if (exe && (await launch(exe, [novaExe, String(novaPid), ...flags]))) {
       log("figyelő indítva");
       return true;
     }
@@ -118,6 +117,8 @@ function createRecall({
       parsec ? "1" : "0",
       "-LogFile",
       logFile,
+      "-Cursor",
+      cursor ? "1" : "0",
     ]);
     if (fallback) log("figyelő indítva (PowerShell)");
     return fallback;

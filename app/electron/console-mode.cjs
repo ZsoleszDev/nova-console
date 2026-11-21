@@ -138,6 +138,7 @@ function createConsoleMode({
             (getSettings().consoleGuard === false || guardPaused() ? 0 : 1),
         );
         write("taskbar|" + (taskbarHidden() ? 1 : 0));
+        write("cursor|" + (getSettings().hideCursor === false ? 0 : 1));
       } catch {}
   }
   function syncHotkey() {

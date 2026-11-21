@@ -13,6 +13,8 @@ const {
   validatePad,
   protectedPlaybackFor,
   playbackPages,
+  normalizePlayback,
+  expectedFlags,
 } = require("./media-policy.cjs");
 
 function createMediaIntegration({
@@ -21,6 +23,10 @@ function createMediaIntegration({
   getSettings = () => ({}),
   backgroundMain = () => {},
   onControlActive = () => {},
+  // Makes the playback mode take effect before a fresh start of NOVA's Edge,
+  // and checks it afterwards (edge-profile.cjs).
+  prepareBrowser = async () => {},
+  verifyBrowser = async () => {},
   focusMain = () => {
     mainWindow.restore();
     mainWindow.show();
@@ -677,7 +683,12 @@ function createMediaIntegration({
     stopHelper();
     const profile = path.join(app.getPath("userData"), "media-profile");
     fs.mkdirSync(profile, { recursive: true });
-    const child = spawn(browser, browserArgs(profile, key, getSettings().mediaPlayback), {
+    const playback = normalizePlayback(getSettings().mediaPlayback);
+    await Promise.resolve()
+      .then(() => prepareBrowser(profile, playback))
+      .catch(() => {});
+    if (closing || epoch !== intentEpoch) return snapshot();
+    const child = spawn(browser, browserArgs(profile, key, playback), {
       windowsHide: false,
       detached: true,
       stdio: "ignore",
@@ -688,6 +699,9 @@ function createMediaIntegration({
       child.once("error", reject);
     });
     child.unref();
+    Promise.resolve()
+      .then(() => verifyBrowser(profile, playback, expectedFlags(playback)))
+      .catch(() => {});
     if (closing || epoch !== intentEpoch) return snapshot();
     state = {
       ...state,

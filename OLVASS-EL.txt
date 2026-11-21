@@ -1,4 +1,44 @@
-﻿NOVA 1.11.7 – DISNEY+ ÉS HBO MAX: NINCS TÖBB FEKETE KÉP
+﻿NOVA 1.11.9 – DISNEY+ ÉS HBO MAX: VIDEÓGYORSÍTÁS NÉLKÜL, ELLENŐRZÖTT INDÍTÁS
+
+Javítás: az 1.11.7 után is fekete maradt a film. Két ok lehetett: a NOVA
+Edge-e még a hardveres gyorsítással és -védelemmel futott, illetve egy még
+futó NOVA Edge miatt az új kapcsolók nem léptek életbe.
+– Az új alapbeállítás (Parsec- és tévébarát) a NOVA Edge-profiljában kikapcsolja
+  a videógyorsítást is. Gyorsítás nélkül az Edge-nek nincs hardveres
+  másolásvédelmi útja, így szoftveres Widevine-nal játszik le: ez a fekete kép
+  bevett, dokumentált javítása. A NOVA ezt indítási kapcsolóval és az Edge saját
+  „Grafikus gyorsítás használata” beállításában (a profil Local State fájljában)
+  is beállítja. A saját Edge-edhez nem nyúl.
+– Filmindítás előtt a NOVA bezárja a saját, irányítása nélkül még futó Edge-ét,
+  hogy a kapcsolók biztosan érvényesek legyenek.
+– Indítás után a NOVA ellenőrzi, milyen kapcsolókkal fut ténylegesen az Edge,
+  és beírja a %APPDATA%\NOVA\modvalaszto-naplo.txt naplóba („média:” sorok).
+– Beállítás (Ctrl+Alt+M > Y > Disney+ és HBO Max lejátszás): Parsec- és
+  tévébarát (alap) / Videógyorsítással (csak a hardveres védelem kikapcsolva;
+  egyes gépeken így is fekete) / Legjobb minőség (4K, az Edge alapja). Az
+  1.11.7-es beállítások az új alapra váltanak.
+– Gyorsítás nélkül a processzor jobban dolgozik; 4K YouTube akadhat, ilyenkor a
+  YouTube-ot alacsonyabb minőségre állítsd, vagy válaszd a Videógyorsítással módot.
+
+
+NOVA 1.11.8 – A KURZOR ELTŰNIK, HA KONTROLLERT HASZNÁLSZ
+
+Ha kontrollert használsz, az egérmutató mindenhol eltűnik: a NOVA-ban, a
+Windowsban, a filmeknél és a Parsec képén is. Ha megmozdítod az egeret, vagy
+Parsecen a laptop egerét / touchpadjét, visszajön. Konzol módban a NOVA
+segédje, Jarvis és Windows módban (bezárt NOVA mellett) a kis figyelő végzi.
+– A NOVA médiás egérmódjában (bal kar = mutató) a mutató a mozgatás alatt és
+  utána 1,5 másodpercig látszik, utána a következő kontrollergombnál eltűnik.
+– A billentyűzet nem hozza vissza a mutatót, csak az egér mozgatása. Ha egy
+  játék maga teszi középre a mutatót, az sem.
+– Elrejtéskor a NOVA a Windows mutatóit átlátszóra cseréli, visszahozáskor a
+  saját egérmutató-sémádat tölti vissza. A NOVA és a figyelő indulásakor és
+  kilépésekor a mutató mindig visszajön. Ha mégis eltűnve maradna: indítsd el a
+  NOVA-t, vagy jelentkezz ki és be.
+Kikapcsolható: módválasztó > Beállítások > Kurzor elrejtése kontrollerhasználatkor.
+
+
+NOVA 1.11.7 – DISNEY+ ÉS HBO MAX: NINCS TÖBB FEKETE KÉP
 
 Javítva: Disney+ és HBO Max filmeknél csak a hang ment, a kép fekete volt.
 Ok: az Edge ezeknél alapból hardveres másolásvédelmet (PlayReady) használ.

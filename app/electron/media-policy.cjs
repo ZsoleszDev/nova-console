@@ -11,28 +11,45 @@ const playbackPages = Object.freeze({
   "edge-graphics": "edge://settings/system",
 });
 const protectedPlaybackFor = (key) => key === "disney" || key === "hbo";
-// Disney+ / HBO Max play through Edge's hardware DRM (PlayReady) by default. Such
-// video turns black, with sound, whenever the screen is captured (Parsec,
-// Discord, OBS) or the display chain lacks HDCP (some TVs, adapters, Parsec's
-// virtual display). NOVA's own Edge profile can use software DRM instead:
-// - "compatible": no PlayReady, no hardware-secure Widevine, no video overlays
-// - "software": the same without GPU acceleration (the most reliable)
+// Disney+ / HBO Max play through Edge's hardware DRM by default. Such video turns
+// black, with sound, whenever the screen is captured (Parsec, Discord, OBS) or
+// the display chain lacks HDCP (some TVs, adapters, Parsec's virtual display).
+// Without GPU acceleration Edge has no hardware DRM path at all and plays with
+// software Widevine, which is the documented fix. NOVA's own Edge profile:
+// - "parsec" (default): no GPU acceleration, no PlayReady, no hardware decryption
+// - "gpu": GPU acceleration kept, only PlayReady / hardware decryption off
 // - "quality": Edge's default, up to 4K, black over Parsec
-const playbackModes = Object.freeze(["compatible", "software", "quality"]);
+// msWidevinePlatform is left alone on purpose: it is Edge's (software) Widevine.
+const playbackModes = Object.freeze(["parsec", "gpu", "quality"]);
+// 1.11.7 values: both now mean the default.
+function normalizePlayback(mode) {
+  return playbackModes.includes(mode) ? mode : "parsec";
+}
 const SOFTWARE_DRM_FEATURES = [
   "msPlayReadyWin10",
   "HardwareSecureDecryption",
   "HardwareSecureDecryptionExperiment",
   "HardwareSecureDecryptionFallback",
 ];
-function playbackArgs(mode = "compatible") {
-  if (mode === "quality") return [];
-  const args = [
+function playbackArgs(mode = "parsec") {
+  mode = normalizePlayback(mode);
+  // NOVA may close a stale NOVA Edge first; no "restore pages" bubble afterwards.
+  const args = ["--hide-crash-restore-bubble"];
+  if (mode === "quality") return args;
+  args.push(
     "--disable-features=" + SOFTWARE_DRM_FEATURES.join(","),
     "--disable-direct-composition-video-overlays",
-  ];
-  if (mode === "software") args.push("--disable-gpu");
+  );
+  if (mode === "parsec") args.push("--disable-gpu", "--disable-gpu-compositing");
   return args;
+}
+// What the running Edge must show in its command line for the mode to hold.
+function expectedFlags(mode) {
+  mode = normalizePlayback(mode);
+  if (mode === "quality") return [];
+  return mode === "parsec"
+    ? ["--disable-gpu", "--disable-features=msPlayReadyWin10"]
+    : ["--disable-features=msPlayReadyWin10"];
 }
 const commands = new Set([
   "back",
@@ -64,7 +81,7 @@ function serviceFor(key) {
 }
 // The flags hold for the whole Edge process of the NOVA profile, whichever
 // service opens it first, so they are passed for every service.
-function browserArgs(profile, key, playback = "compatible") {
+function browserArgs(profile, key, playback = "parsec") {
   return [
     "--user-data-dir=" + profile,
     "--new-window",
@@ -72,7 +89,7 @@ function browserArgs(profile, key, playback = "compatible") {
     "--no-first-run",
     "--force-renderer-accessibility",
     "--disable-background-mode",
-    ...playbackArgs(playbackModes.includes(playback) ? playback : "compatible"),
+    ...playbackArgs(playback),
     serviceFor(key).url,
   ];
 }
@@ -131,7 +148,9 @@ function validatePad(sample) {
 }
 module.exports = {
   playbackModes,
+  normalizePlayback,
   playbackArgs,
+  expectedFlags,
   validatePad,
   protectedPlaybackFor,
   playbackPages,
