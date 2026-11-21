@@ -238,6 +238,11 @@ function setup() {
           throw Error("Ismeretlen mód.");
         next[key] = patch[key];
       }
+    if ("mediaPlayback" in patch) {
+      if (!["compatible", "software", "quality"].includes(patch.mediaPlayback))
+        throw Error("Ismeretlen lejátszási mód.");
+      next.mediaPlayback = patch.mediaPlayback;
+    }
     if ("jarvisPath" in patch) {
       if (
         typeof patch.jarvisPath !== "string" ||

@@ -46,6 +46,11 @@ function validModePatch(patch) {
       throw Error("Érvénytelen visszaszámlálás.");
     next.modeCountdown = patch.modeCountdown;
   }
+  if ("mediaPlayback" in patch) {
+    if (!["compatible", "software", "quality"].includes(patch.mediaPlayback))
+      throw Error("Ismeretlen lejátszási mód.");
+    next.mediaPlayback = patch.mediaPlayback;
+  }
   if ("defaultMode" in patch) {
     if (!MODES.includes(patch.defaultMode)) throw Error("Ismeretlen mód.");
     next.defaultMode = patch.defaultMode;
@@ -139,6 +144,7 @@ function createModeManager({
         hideTaskbar: s.hideTaskbar !== false,
         quitOutsideConsole: s.quitOutsideConsole !== false,
         parsecPicker: s.parsecPicker !== false,
+        mediaPlayback: s.mediaPlayback || "compatible",
         jarvisPath: s.jarvisPath || "",
       },
       jarvisDir,

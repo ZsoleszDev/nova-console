@@ -1,5 +1,16 @@
-﻿NOVA 1.11.6 – ELLENŐRZÉSI JEGYZET
-2026. november 19.
+﻿NOVA 1.11.7 – ELLENŐRZÉSI JEGYZET
+2026. november 21.
+
+– 1.11.7: 36 Node-teszt sikeres, köztük az Edge indítási kapcsolói mindhárom
+  lejátszási módban és a beállítás ellenőrzése. A 1.10.2-es forráscsomag
+  médiatesztjei a módosított kóddal: 22 változatlanul sikeres; egy ellenőrzés
+  szándékosan változott (eddig azt követelte, hogy a NOVA ne kapcsolja ki a
+  hardveres DRM-et). Ugyanazzal a tesztkörnyezettel a valódi media.cjs a
+  Disney+ megnyitásakor mindhárom módban a várt kapcsolókkal indítja az Edge-et.
+  Electronban a módválasztó új beállítási sora kontrollerszerű léptetéssel
+  körbejár a három módon. A valódi Disney+ / HBO Max lejátszás Parsecen és
+  tévén, valamint az msPlayReadyWin10 funkciónév hatása az aktuális Edge-ben
+  Windowson ellenőrizendő (edge://gpu, Media Foundation Rendering Capabilities).
 
 – 1.11.6: 33 Node-teszt sikeres, köztük a figyelő egyszeri lefordítása és
   indítása, a PowerShell-es tartalék és a fel nem ismert Parsec-sorok jelzése.

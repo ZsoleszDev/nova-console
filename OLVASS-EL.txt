@@ -1,4 +1,32 @@
-﻿NOVA 1.11.6 – MEGBÍZHATÓBB FIGYELŐ BEZÁRT NOVA MELLETT, RÉSZLETES NAPLÓ
+﻿NOVA 1.11.7 – DISNEY+ ÉS HBO MAX: NINCS TÖBB FEKETE KÉP
+
+Javítva: Disney+ és HBO Max filmeknél csak a hang ment, a kép fekete volt.
+Ok: az Edge ezeknél alapból hardveres másolásvédelmet (PlayReady) használ.
+Az így lejátszott kép fekete, ha a képernyőt valami rögzíti vagy továbbítja
+(Parsec, Discord, OBS), vagy ha a kijelzőlánc nem támogatja a HDCP-t (egyes
+tévék, átalakítók, a Parsec virtuális kijelzője). A NOVA saját ablakai nem
+okozták: a film fölött a NOVA nem rögzíti a képernyőt.
+Most a NOVA saját Edge-profilja (és csak az, a saját Edge-ed nem) szoftveres
+másolásvédelemmel (Widevine) játszik le, így a film Parsecen át és HDCP
+nélküli kijelzőn is látszik. A védelem nem kerül megkerülésre: a film titkosítva
+érkezik, és a szolgáltató dönti el, milyen felbontást ad hozzá, jellemzően
+720p–1080p-t (4K helyett).
+Beállítás: módválasztó (Ctrl+Alt+M) > Beállítások (Y) > Disney+ és HBO Max
+lejátszás:
+– Parsec- és tévébarát (alap): PlayReady és hardveres visszafejtés kikapcsolva,
+  videóátfedés (overlay) nélkül.
+– Videógyorsítás nélkül: ugyanez GPU-gyorsítás nélkül. Ez a legbiztosabb, ha a
+  kép még mindig fekete; több processzort használ.
+– Legjobb minőség (4K): az Edge alapbeállítása, a régi működés; Parsecen és HDCP
+  nélküli kijelzőn fekete kép.
+A beállítás az Edge következő megnyitásától érvényes: a NOVA Edge-ablakait
+előtte zárd be (Vissza a NOVA-ba). A telepítő a futó NOVA Edge-ablakokat
+bezárja, a saját Edge-edhez nem nyúl. Első lejátszáskor az Edge a NOVA
+profiljába letöltheti a Widevine-modult; ha a Disney+ ekkor hibát jelez, várj
+egy percet, és nyisd meg újra.
+
+
+NOVA 1.11.6 – MEGBÍZHATÓBB FIGYELŐ BEZÁRT NOVA MELLETT, RÉSZLETES NAPLÓ
 
 Javítás: Jarvis módban a Parsec-csatlakozás nem hozta elő a módválasztót.
 A bezárt NOVA melletti figyelő mostantól egy kis, ablak nélküli program

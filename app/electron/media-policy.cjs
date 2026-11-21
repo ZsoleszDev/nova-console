@@ -11,6 +11,29 @@ const playbackPages = Object.freeze({
   "edge-graphics": "edge://settings/system",
 });
 const protectedPlaybackFor = (key) => key === "disney" || key === "hbo";
+// Disney+ / HBO Max play through Edge's hardware DRM (PlayReady) by default. Such
+// video turns black, with sound, whenever the screen is captured (Parsec,
+// Discord, OBS) or the display chain lacks HDCP (some TVs, adapters, Parsec's
+// virtual display). NOVA's own Edge profile can use software DRM instead:
+// - "compatible": no PlayReady, no hardware-secure Widevine, no video overlays
+// - "software": the same without GPU acceleration (the most reliable)
+// - "quality": Edge's default, up to 4K, black over Parsec
+const playbackModes = Object.freeze(["compatible", "software", "quality"]);
+const SOFTWARE_DRM_FEATURES = [
+  "msPlayReadyWin10",
+  "HardwareSecureDecryption",
+  "HardwareSecureDecryptionExperiment",
+  "HardwareSecureDecryptionFallback",
+];
+function playbackArgs(mode = "compatible") {
+  if (mode === "quality") return [];
+  const args = [
+    "--disable-features=" + SOFTWARE_DRM_FEATURES.join(","),
+    "--disable-direct-composition-video-overlays",
+  ];
+  if (mode === "software") args.push("--disable-gpu");
+  return args;
+}
 const commands = new Set([
   "back",
   "forward",
@@ -39,7 +62,9 @@ function serviceFor(key) {
     throw Error("Ismeretlen médiaszolgáltatás.");
   return services[key];
 }
-function browserArgs(profile, key) {
+// The flags hold for the whole Edge process of the NOVA profile, whichever
+// service opens it first, so they are passed for every service.
+function browserArgs(profile, key, playback = "compatible") {
   return [
     "--user-data-dir=" + profile,
     "--new-window",
@@ -47,6 +72,7 @@ function browserArgs(profile, key) {
     "--no-first-run",
     "--force-renderer-accessibility",
     "--disable-background-mode",
+    ...playbackArgs(playbackModes.includes(playback) ? playback : "compatible"),
     serviceFor(key).url,
   ];
 }
@@ -104,6 +130,8 @@ function validatePad(sample) {
   ].join("|");
 }
 module.exports = {
+  playbackModes,
+  playbackArgs,
   validatePad,
   protectedPlaybackFor,
   playbackPages,

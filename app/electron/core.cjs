@@ -37,6 +37,7 @@ const defaults = {
   hideTaskbar: true,
   quitOutsideConsole: true,
   parsecPicker: true,
+  mediaPlayback: "compatible",
 };
 const modes = ["console", "jarvis", "windows"];
 const modeCountdowns = [10, 15, 20, 30, 45, 60, 90, 120];
@@ -105,6 +106,8 @@ function cleanSettings(input = {}) {
   settings.accent = defaults.accent;
   if (!["forza", "ori", "plain"].includes(settings.wallpaper))
     settings.wallpaper = defaults.wallpaper;
+  if (!["compatible", "software", "quality"].includes(settings.mediaPlayback))
+    settings.mediaPlayback = defaults.mediaPlayback;
   if (!modeCountdowns.includes(settings.modeCountdown))
     settings.modeCountdown = defaults.modeCountdown;
   if (!modes.includes(settings.defaultMode))
