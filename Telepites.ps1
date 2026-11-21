@@ -10,6 +10,14 @@ try {
     $exe = Join-Path $target 'NOVA.exe'
     $running = @(Get-Process -Name 'NOVA' -ErrorAction SilentlyContinue | Where-Object { $_.Path -eq $exe })
     if ($running.Count -gt 0) { throw 'Előbb teljesen lépj ki a NOVA-ból a Gyorsmenü > Kilépés ponttal, majd futtasd újra ezt a telepítőt.' }
+    # Edge reads NOVA's playback flags only when NOVA's own Edge profile starts fresh:
+    # close just those windows (Disney+, HBO Max, YouTube, Spotify), never the user's own Edge.
+    $mediaProfile = Join-Path $env:APPDATA 'NOVA\media-profile'
+    $novaEdge = @(Get-CimInstance Win32_Process -Filter "Name='msedge.exe'" -ErrorAction SilentlyContinue | Where-Object { $_.CommandLine -and $_.CommandLine.IndexOf($mediaProfile, [StringComparison]::OrdinalIgnoreCase) -ge 0 })
+    if ($novaEdge.Count -gt 0) {
+        Write-Host 'A NOVA saját Edge-ablakainak bezárása (Disney+, HBO Max, YouTube, Spotify)...'
+        foreach ($process in $novaEdge) { Stop-Process -Id $process.ProcessId -Force -ErrorAction SilentlyContinue }
+    }
     $appSource = Join-Path $PSScriptRoot 'app'
     if (-not (Test-Path -LiteralPath (Join-Path $appSource 'dist\index.html'))) { throw 'Előbb csomagold ki a ZIP teljes tartalmát, majd onnan futtasd a Telepites.cmd fájlt.' }
     $novaTemp = Join-Path ([IO.Path]::GetTempPath()) ('NOVA-install-' + [guid]::NewGuid().ToString('N'))
@@ -17,7 +25,7 @@ try {
     $versionFile = Join-Path $target 'version'
     $reuse = (Test-Path -LiteralPath $exe) -and (Test-Path -LiteralPath $versionFile)
     if ($reuse) { $reuse = (Get-Content -LiteralPath $versionFile -Raw).Trim() -eq '45.3.2' }
-    Write-Host 'NOVA 1.11.6 telepítő / frissítő – Windows x64' -ForegroundColor Green
+    Write-Host 'NOVA 1.11.7 telepítő / frissítő – Windows x64' -ForegroundColor Green
     if ($reuse) {
         Write-Host 'Meglévő futtatókörnyezet felismerve. Az alkalmazás frissítése...'
         $newApp = Join-Path $target ('resources\app-new-' + [guid]::NewGuid().ToString('N'))

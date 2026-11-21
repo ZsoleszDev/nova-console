@@ -677,7 +677,7 @@ function createMediaIntegration({
     stopHelper();
     const profile = path.join(app.getPath("userData"), "media-profile");
     fs.mkdirSync(profile, { recursive: true });
-    const child = spawn(browser, browserArgs(profile, key), {
+    const child = spawn(browser, browserArgs(profile, key, getSettings().mediaPlayback), {
       windowsHide: false,
       detached: true,
       stdio: "ignore",
