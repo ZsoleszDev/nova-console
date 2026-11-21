@@ -43,7 +43,7 @@ function loadConsoleMode(spawned) {
   }
 }
 
-test("taskbar command follows the picker and Konzol mode, and is undone on stop", async () => {
+test("taskbar and pointer commands follow the settings; the taskbar is restored on stop", async () => {
   const platform = Object.getOwnPropertyDescriptor(process, "platform");
   Object.defineProperty(process, "platform", { value: "win32" });
   try {
@@ -77,6 +77,11 @@ test("taskbar command follows the picker and Konzol mode, and is undone on stop"
     assert.equal(sent().at(-1), "taskbar|0\n");
     settings.hideTaskbar = true;
     mode.refreshConfig();
+    const cursor = () => helper.stdin.lines.filter((l) => l.startsWith("cursor|"));
+    assert.equal(cursor().at(-1), "cursor|1\n");
+    settings.hideCursor = false;
+    mode.refreshConfig();
+    assert.equal(cursor().at(-1), "cursor|0\n");
     mode.dispose();
     assert.deepEqual(helper.stdin.lines.slice(-2), ["taskbar|0\n", "stop\n"]);
   } finally {

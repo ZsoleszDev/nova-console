@@ -25,7 +25,7 @@ try {
     $versionFile = Join-Path $target 'version'
     $reuse = (Test-Path -LiteralPath $exe) -and (Test-Path -LiteralPath $versionFile)
     if ($reuse) { $reuse = (Get-Content -LiteralPath $versionFile -Raw).Trim() -eq '45.3.2' }
-    Write-Host 'NOVA 1.11.7 telepítő / frissítő – Windows x64' -ForegroundColor Green
+    Write-Host 'NOVA 1.11.8 telepítő / frissítő – Windows x64' -ForegroundColor Green
     if ($reuse) {
         Write-Host 'Meglévő futtatókörnyezet felismerve. Az alkalmazás frissítése...'
         $newApp = Join-Path $target ('resources\app-new-' + [guid]::NewGuid().ToString('N'))

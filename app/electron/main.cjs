@@ -193,6 +193,7 @@ function setup() {
       "hideTaskbar",
       "quitOutsideConsole",
       "parsecPicker",
+      "hideCursor",
     ])
       if (k in patch) {
         if (typeof patch[k] !== "boolean")
@@ -562,7 +563,10 @@ function quitAfterMode() {
     quitting = true;
     startupLog(`kilépés: ${state.settings.currentMode === "jarvis" ? "Jarvis" : "Windows"} mód`);
     recall
-      .start({ parsec: state.settings.parsecPicker !== false })
+      .start({
+        parsec: state.settings.parsecPicker !== false,
+        cursor: state.settings.hideCursor !== false,
+      })
       .catch(() => false)
       .finally(() => {
         // The picker was called back meanwhile: NOVA stays, the watcher steps aside.

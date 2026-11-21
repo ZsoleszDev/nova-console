@@ -1,6 +1,7 @@
 ﻿// C# 5 / .NET Framework 4.8. Runs only while NOVA is closed (Jarvis / Windows mode).
 // Reads the controllers and Parsec's host log, nothing else. View + Menu held for
-// 3 s, or a new Parsec connection, starts NOVA's mode picker.
+// 3 s, or a new Parsec connection, starts NOVA's mode picker. While a controller
+// is in use the mouse pointer is hidden (CursorHide.cs), as in NOVA.
 // NOVA compiles this file into a small windowless program (nova-figyelo-*.exe);
 // recall.ps1 is the fallback. What it does goes into NOVA's mode picker log.
 using System;
@@ -88,14 +89,16 @@ namespace Nova {
     Process.Start(start).Dispose();
    }catch(Exception e){Log("a NOVA nem indult el: "+e.Message);}
   }
-  // Entry point of nova-figyelo.exe: NOVA.exe path, NOVA pid, Parsec 1/0, log file.
+  // Entry point of nova-figyelo.exe: NOVA.exe path, NOVA pid, Parsec 1/0, log file, hide pointer 1/0.
   public static void Main(string[] args){
    int pid;
    if(args.Length<3||!Int32.TryParse(args[1],out pid))return;
-   try{Run(args[0],pid,args[2]=="1",args.Length>3?args[3]:"");}catch(Exception e){Log("hiba: "+e.Message);}
+   try{Run(args[0],pid,args[2]=="1",args.Length>3?args[3]:"",args.Length>4&&args[4]=="1");}catch(Exception e){Log("hiba: "+e.Message);}
+   finally{CursorHide.Show();}
   }
-  public static void Run(string exe,int novaPid,bool parsec,string logPath){
+  public static void Run(string exe,int novaPid,bool parsec,string logPath,bool cursor){
    LogPath=logPath??"";
+   CursorHide.Enabled=cursor;
    if(!File.Exists(exe)){Log("nem található: "+exe);return;}
    bool created;
    using(Mutex single=new Mutex(true,"Local\\NovaModeRecall",out created)){
@@ -105,7 +108,7 @@ namespace Nova {
     Thread.Sleep(3000);
     List<LogFile> logs=parsec?ParsecLogs():new List<LogFile>();
     Log("elindult (View + Menü 3 mp"+(parsec?", Parsec-csatlakozás":"")+")");
-    Stopwatch clock=Stopwatch.StartNew();long since=0,lastCheck=0,lastLog=0;long[] retry=new long[4];bool pads=true;
+    Stopwatch clock=Stopwatch.StartNew();long since=0,lastCheck=0,lastLog=0,padInput=-1;long[] retry=new long[4];bool pads=true;
     while(true){
      long now=clock.ElapsedMilliseconds;
      // NOVA started some other way: it takes over the controller and Parsec again.
@@ -119,7 +122,10 @@ namespace Nova {
       // Polling an empty slot is slow; check it again only every few seconds.
       if(result!=0){retry[index]=now+3000;continue;}
       if((state.Pad.Buttons&0x30)==0x30)held=true;
+      Pad pad=state.Pad;const int limit=11468;
+      if(pad.Buttons!=0||pad.LT>30||pad.RT>30||Math.Abs((int)pad.LX)>limit||Math.Abs((int)pad.LY)>limit||Math.Abs((int)pad.RX)>limit||Math.Abs((int)pad.RY)>limit)padInput=now;
      }
+     CursorHide.Update(now,padInput);
      if(!held)since=0;
      else{
       if(since==0)since=now;

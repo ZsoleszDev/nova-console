@@ -36,6 +36,7 @@ function validModePatch(patch) {
     "hideTaskbar",
     "quitOutsideConsole",
     "parsecPicker",
+    "hideCursor",
   ])
     if (key in patch) {
       if (typeof patch[key] !== "boolean") throw Error("Érvénytelen beállítás.");
@@ -144,6 +145,7 @@ function createModeManager({
         hideTaskbar: s.hideTaskbar !== false,
         quitOutsideConsole: s.quitOutsideConsole !== false,
         parsecPicker: s.parsecPicker !== false,
+        hideCursor: s.hideCursor !== false,
         mediaPlayback: s.mediaPlayback || "compatible",
         jarvisPath: s.jarvisPath || "",
       },

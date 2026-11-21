@@ -1,5 +1,15 @@
-﻿NOVA 1.11.7 – ELLENŐRZÉSI JEGYZET
+﻿NOVA 1.11.8 – ELLENŐRZÉSI JEGYZET
 2026. november 21.
+
+– 1.11.8: 37 Node-teszt sikeres (a konzolsegéd és a figyelő új kurzorparancsa,
+  beállítás). A CursorHide.cs döntési logikája mono alatt helyettesített egérrel
+  és kontrollerrel 13 esetben sikeres: kezdeti állapot, elrejtés kontrollerre,
+  megjelenés egérmozgásra, 1,5 mp-es türelmi idő a kontrolleres mutatóhoz, játék
+  általi középre igazítás és billentyűzet nem hozza vissza, kikapcsolás. A
+  ConsoleHost (+CoreAudio, CursorHide) és a figyelő (Recall + CursorHide, winexe)
+  C# 5 fordítása sikeres; a figyelő mono alatt végig futott. A valódi Windowsos
+  mutatócsere (SetSystemCursor / SPI_SETCURSORS) és a Parsec-kép Windowson
+  ellenőrizendő.
 
 – 1.11.7: 36 Node-teszt sikeres, köztük az Edge indítási kapcsolói mindhárom
   lejátszási módban és a beállítás ellenőrzése. A 1.10.2-es forráscsomag
