@@ -256,11 +256,11 @@ const TITLES = {
   windows: ["Váltás Windows módra", "Windows mód kész"],
 };
 const COUNTDOWNS = [10, 15, 20, 30, 45, 60, 90, 120];
-const PLAYBACK = ["compatible", "software", "quality"];
-const PLAYBACK_NAMES = { compatible: "Parsec- és tévébarát", software: "Videógyorsítás nélkül", quality: "Legjobb minőség (4K)" };
+const PLAYBACK = ["parsec", "gpu", "quality"];
+const PLAYBACK_NAMES = { parsec: "Parsec- és tévébarát", gpu: "Videógyorsítással", quality: "Legjobb minőség (4K)" };
 const PLAYBACK_INFO = {
-  compatible: "A NOVA Edge-profilja szoftveres másolásvédelmet használ, így a film Parsecen és HDCP nélküli kijelzőn is látszik. A felbontás jellemzően 720p–1080p.",
-  software: "Mint a Parsec- és tévébarát, de videógyorsítás nélkül: ez a legbiztosabb, ha a film még mindig fekete. Több processzort használ.",
+  parsec: "A NOVA Edge-profilja videógyorsítás és hardveres másolásvédelem nélkül fut, így a film Parsecen és HDCP nélküli kijelzőn is látszik. A felbontás jellemzően 720p–1080p, a processzor jobban dolgozik.",
+  gpu: "Videógyorsítással, csak a hardveres másolásvédelem kikapcsolva. Kevesebb processzort használ, de egyes gépeken a film így is fekete marad.",
   quality: "Az Edge saját hardveres védelme, akár 4K. Parsecen, képernyőrögzítés közben és HDCP nélküli kijelzőn a film fekete, csak hang van.",
 };
 const CIRC = 2 * Math.PI * 12;
@@ -435,7 +435,7 @@ function settingRows() {
     { id: "consoleGuard", type: "toggle", label: "Asztal elrejtése konzol módban", sub: "Ha konzol módban előkerül a Windows asztala, a NOVA pár másodperc múlva visszajön.", on: s.consoleGuard },
     { id: "quitOutsideConsole", type: "toggle", label: "NOVA bezárása Jarvis és Windows módban", sub: "A NOVA teljesen kilép, így memóriát és videókártyát sem foglal. Visszahívás: View + Menü 3 mp-ig, Ctrl+Alt+M, vagy a NOVA – Mód választása parancsikon.", on: s.quitOutsideConsole },
     { id: "hideCursor", type: "toggle", label: "Kurzor elrejtése kontrollerhasználatkor", sub: "Ha kontrollert használsz, az egérmutató mindenhol eltűnik (a Parsec képén is). Ha megmozdítod az egeret vagy a laptop touchpadjét, visszajön.", on: s.hideCursor },
-    { id: "mediaPlayback", type: "cycle", label: "Disney+ és HBO Max lejátszás", sub: PLAYBACK_INFO[s.mediaPlayback] + " Az Edge következő megnyitásától érvényes.", value: PLAYBACK_NAMES[s.mediaPlayback] },
+    { id: "mediaPlayback", type: "cycle", label: "Disney+ és HBO Max lejátszás", sub: PLAYBACK_INFO[s.mediaPlayback] + " A következő megnyitáskor lép életbe (ha egy film még nyitva van: előbb Vissza a NOVA-ba).", value: PLAYBACK_NAMES[s.mediaPlayback] },
     { id: "parsecPicker", type: "toggle", label: "Módválasztó Parsec-csatlakozáskor", sub: "Ha a géphez új Parsec-kapcsolat érkezik (például a laptopról a tévén), előjön a módválasztó. Bezárt NOVA mellett is. Játék és média közben nem, és rövid megszakadás utáni újracsatlakozáskor sem.", on: s.parsecPicker },
     { id: "hideTaskbar", type: "toggle", label: "Tálca elrejtése", sub: "A módválasztó és a konzol mód alatt a Windows tálcája nem látszik. Windows és Jarvis módban, illetve a NOVA bezárásakor visszajön.", on: s.hideTaskbar },
     own.length

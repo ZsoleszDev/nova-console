@@ -28,6 +28,7 @@ const { createModeManager } = require("./mode-manager.cjs");
 const { createServices } = require("./services.cjs");
 const { createParsecWatch, parsecLogPaths } = require("./parsec-watch.cjs");
 const { createRecall } = require("./recall.cjs");
+const { createEdgeProfile } = require("./edge-profile.cjs");
 protocol.registerSchemesAsPrivileged([
   {
     scheme: "nova-art",
@@ -240,7 +241,7 @@ function setup() {
         next[key] = patch[key];
       }
     if ("mediaPlayback" in patch) {
-      if (!["compatible", "software", "quality"].includes(patch.mediaPlayback))
+      if (!["parsec", "gpu", "quality"].includes(patch.mediaPlayback))
         throw Error("Ismeretlen lejátszási mód.");
       next.mediaPlayback = patch.mediaPlayback;
     }
@@ -791,10 +792,18 @@ if (!app.requestSingleInstanceLock()) {
       },
       onAudio: (audio) => guide?.audio(audio),
     });
+    const edgeProfile = createEdgeProfile({
+      run,
+      log: (text) => startupLog("média: " + text),
+      enabled: isWindows,
+    });
     media = createMediaIntegration({
       app,
       mainWindow: win,
       getSettings: () => state.settings,
+      prepareBrowser: (profile, playback) => edgeProfile.prepare(profile, playback),
+      verifyBrowser: (profile, playback, expected) =>
+        edgeProfile.verify(profile, playback, expected),
       onControlActive: (value) => {
         if (value) guide?.hide();
         consoleMode.setMediaActive(value);

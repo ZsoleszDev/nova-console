@@ -37,7 +37,7 @@ const defaults = {
   hideTaskbar: true,
   quitOutsideConsole: true,
   parsecPicker: true,
-  mediaPlayback: "compatible",
+  mediaPlayback: "parsec",
   hideCursor: true,
 };
 const modes = ["console", "jarvis", "windows"];
@@ -107,7 +107,9 @@ function cleanSettings(input = {}) {
   settings.accent = defaults.accent;
   if (!["forza", "ori", "plain"].includes(settings.wallpaper))
     settings.wallpaper = defaults.wallpaper;
-  if (!["compatible", "software", "quality"].includes(settings.mediaPlayback))
+  // 1.11.7's "compatible" (the default that still went black) and "software"
+  // both become the new default, which turns GPU acceleration off.
+  if (!["parsec", "gpu", "quality"].includes(settings.mediaPlayback))
     settings.mediaPlayback = defaults.mediaPlayback;
   if (!modeCountdowns.includes(settings.modeCountdown))
     settings.modeCountdown = defaults.modeCountdown;

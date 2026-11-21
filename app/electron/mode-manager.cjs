@@ -48,7 +48,7 @@ function validModePatch(patch) {
     next.modeCountdown = patch.modeCountdown;
   }
   if ("mediaPlayback" in patch) {
-    if (!["compatible", "software", "quality"].includes(patch.mediaPlayback))
+    if (!["parsec", "gpu", "quality"].includes(patch.mediaPlayback))
       throw Error("Ismeretlen lejátszási mód.");
     next.mediaPlayback = patch.mediaPlayback;
   }
@@ -146,7 +146,7 @@ function createModeManager({
         quitOutsideConsole: s.quitOutsideConsole !== false,
         parsecPicker: s.parsecPicker !== false,
         hideCursor: s.hideCursor !== false,
-        mediaPlayback: s.mediaPlayback || "compatible",
+        mediaPlayback: s.mediaPlayback || "parsec",
         jarvisPath: s.jarvisPath || "",
       },
       jarvisDir,

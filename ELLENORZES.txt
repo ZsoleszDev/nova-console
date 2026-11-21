@@ -1,5 +1,15 @@
-﻿NOVA 1.11.8 – ELLENŐRZÉSI JEGYZET
+﻿NOVA 1.11.9 – ELLENŐRZÉSI JEGYZET
 2026. november 21.
+
+– 1.11.9: 40 Node-teszt sikeres: a lejátszási módok kapcsolói (alapból
+  --disable-gpu, PlayReady és hardveres visszafejtés kikapcsolva, a szoftveres
+  Widevine-hoz tartozó msWidevinePlatform érintetlen), a régi értékek átváltása,
+  a régi NOVA Edge leállítása, a Local State gyorsítási beállítása (más
+  beállítások megőrzése, sérült fájl érintetlen), az indítás utáni ellenőrzés
+  naplózása. Az 1.10.2-es forráscsomag médiatesztjeivel a valódi media.cjs-en:
+  az előkészítés az Edge indítása előtt, az ellenőrzés utána fut, minden módban
+  a várt kapcsolókkal (26 sikeres, a DRM-tiltó régi ellenőrzés szándékosan
+  kihagyva). A valódi Disney+ / HBO Max kép Parsecen Windowson ellenőrizendő.
 
 – 1.11.8: 37 Node-teszt sikeres (a konzolsegéd és a figyelő új kurzorparancsa,
   beállítás). A CursorHide.cs döntési logikája mono alatt helyettesített egérrel
